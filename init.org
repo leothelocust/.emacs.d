@@ -10,8 +10,7 @@
 #+STARTUP:      content
 
 * Summary
-  I've really been wanting to have a nicely formatted emacs config file and this
-  is my attempt at it.
+  I've really been wanting to have a nicely formatted emacs config file and this is my attempt at it.
 * Required Magic
 ** Lexical Binding
 
