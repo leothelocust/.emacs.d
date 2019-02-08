@@ -25,6 +25,7 @@
     company-go
     counsel
     counsel-projectile
+    dash-at-point
     diminish
     dockerfile-mode
     doom-themes
@@ -32,6 +33,7 @@
     eldoc-eval
     elpy
     expand-region
+    fic-mode
     gitignore-mode
     go-mode
     go-playground
@@ -77,11 +79,51 @@
                                (lambda (fg) (set-face-foreground 'mode-line fg))
                                orig-fg))))
 
+(defun set-frame-size-according-to-resolution ()
+  "Set the Emacs window size on startup."
+  (interactive)
+  (if window-system
+      (progn
+        ;; WIDTH
+        (if (> (x-display-pixel-width) 1280)
+            ;; Large Screen (only show 120 cols)
+            (add-to-list 'default-frame-alist (cons 'width 240))
+          ;; Small Screen (fill window)
+          (add-to-list 'default-frame-alist (cons 'width (/ (x-display-pixel-width) (frame-char-width)))))
+
+        ;; HEIGHT
+        (if (> (x-display-pixel-height) 1080)
+            ;; Large Screen (only fill half screen)
+            (add-to-list 'default-frame-alist (cons 'height (/ (/ (x-display-pixel-height) 2)
+                                                               (frame-char-height))))
+          ;; Small Screen (fill window)
+          (add-to-list 'default-frame-alist (cons 'height (/ (x-display-pixel-height) (frame-char-height)))))
+        )))
+
+(set-frame-size-according-to-resolution)
+
+(defun window-px-width ()
+  "Get the width of the Emacs window in pixels."
+  (interactive)
+  (* (* (window-total-width) 2.874) (frame-char-width)))
+
+(defun window-px-left-pos ()
+  "Calculate the left position of the Emacs window."
+  (interactive)
+  (/ (- (x-display-pixel-width) (window-px-width)) 2))
+
+
+(add-to-list 'default-frame-alist (cons 'top 0))
+(add-to-list 'default-frame-alist (cons 'left 1000))
+
+(setq inhibit-splash-screen nil
+      fancy-splash-image "~/.emacs.d/public/emacs-logo.png"
+      fancy-splash-image-file "~/.emacs.d/public/emacs-logo.png")
+
 (defvar backup-dir (expand-file-name "~/.emacs.d/backup/"))
 (defvar autosave-dir (expand-file-name "~/.emacs.d/autosave/"))
 
-(setq inhibit-startup-message t
-      initial-scratch-message nil
+(setq initial-scratch-message nil
       backup-directory-alist (list (cons ".*" backup-dir))
       auto-save-list-file-prefix autosave-dir
       auto-save-file-name-transforms `((".*" ,autosave-dir t)))
@@ -106,6 +148,9 @@
 (require 'which-key)
 (which-key-setup-minibuffer)
 (which-key-mode)
+
+(require 'fic-mode)
+(add-hook 'js-mode-hook 'fic-mode)
 
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
@@ -220,9 +265,13 @@
 
 (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
 (add-hook 'go-mode-hook (lambda ()
-                          (add-hook 'before-save-hook 'gofmnt-before-save)
+                          (add-hook 'before-save-hook 'gofmt-before-save)
                           (local-set-key (kbd "M-.") 'godef-jump)
                           (local-set-key (kbd "M-,") 'pop-tag-mark)
+                          (local-set-key (kbd "C-c C-c") (lambda ()
+                                                           (interactive)
+                                                           (ansi-term)
+                                                           (comint-send-string "*ansi-term*" "make\n")))
                           (set (make-local-variable 'company-backends) '(company-go))
                           (setq company-tooltip-limit 20
                                 company-idle-delay .3
@@ -240,8 +289,8 @@
 
 (when window-system (set-exec-path-from-shell-PATH))
 
-(setenv "GOPATH" "/home/leviolson/go")
-(add-to-list 'exec-path "/home/leviolson/go/bin")
+(setenv "GOPATH" "/Users/leviolson/go")
+(add-to-list 'exec-path "/Users/leviolson/go/bin")
 
 (defun setup-tide-mode ()
   "Tide setup function."
@@ -334,7 +383,7 @@
   (find-file "~/.emacs.d/init.org"))
 
 (defun load-user-init-file ()
-  "Reload the `~/.emacs.d/init.elc' file."
+  "LO: Reload the `~/.emacs.d/init.elc' file."
   (interactive)
   (load-file "~/.emacs.d/init.elc"))
 
@@ -362,6 +411,14 @@
   (interactive)
   (jump-to-symbol-internal))
 
+(defun match-paren (arg)
+  "Go to the matching paren if on a paren; otherwise insert ARG (a literal % sign)."
+  (interactive "p")
+  (cond ((looking-at "\\s(") (forward-list 1))
+        ((looking-back "\\s(" 2) (backward-char 1) (forward-list 1))
+        ((looking-at "\\s)") (forward-char 1) (backward-list 1))
+        ((looking-back "\\s)" 2) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
 
 (defun kill-this-buffer-unless-scratch ()
   "Works like `kill-this-buffer' unless the current buffer is the *scratch* buffer.  In which case the buffer content is deleted and the buffer is buried."
@@ -372,10 +429,24 @@
     (switch-to-buffer (other-buffer))
     (bury-buffer "*scratch*")))
 
-(defun backward-delete-to-word (arg)
-  "Delete words backward.  With ARG, do this many times."
+(defun delete-backward-sentence ()
+  "LO: Delete to the beginning of the sentence/line."
+  (interactive)
+  (delete-region (point) (progn (backward-sentence) (point))))
+
+(defun delete-backward-to-boundary (arg)
+  "LO: Delete backward to the previous word boundary.  With ARG, do this many times."
   (interactive "p")
-  (delete-region (point) (progn (backward-to-word arg) (point))))
+  (let ((a (point))
+        (b (progn
+             (backward-word arg)
+             (forward-word)
+             (point))))
+    (if (< a b)
+        (delete-region a (progn (backward-word arg) (point)))
+      (if (= a b)
+          (delete-region a (progn (backward-word arg) (point)))
+        (delete-region a b)))))
 
 (defun comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
@@ -386,21 +457,29 @@
       (setq beg (line-beginning-position) end (line-end-position)))
     (comment-or-uncomment-region beg end)))
 
+(defun fold-toggle (column)
+  "Code folding by COLUMN."
+  (interactive "P")
+  (set-selective-display
+   (or column
+       (unless selective-display
+         (1+ (current-column))))))
+
 (defun new-line-below ()
-  "Create a new line below current line."
+  "LO: Create a new line below current line."
   (interactive)
   (move-end-of-line 1)
   (newline-and-indent))
 
 (defun new-line-above ()
-  "Create a new line above current line."
+  "LO: Create a new line above current line."
   (interactive)
   (move-beginning-of-line 1)
   (newline)
   (forward-line -1))
 
 (defun duplicate-thing (comment)
-  "Duplicates the current line, or the region if active.  If an argument (COMMENT) is given, the duplicated region will be commented out."
+  "LO: Duplicates the current line, or the region if active.  If an argument (COMMENT) is given, the duplicated region will be commented out."
   (interactive "P")
   (save-excursion
     (let ((start (if (region-active-p) (region-beginning) (point-at-bol)))
@@ -412,22 +491,22 @@
       (when comment (comment-region start end)))))
 
 (defun tidy ()
-  "Ident, untabify and unwhitespacify current buffer, or region if active."
+  "LO: Ident, untabify and unwhitespacify current buffer, or region if active."
   (interactive)
   (let ((beg (if (region-active-p) (region-beginning) (point-min)))
         (end (if (region-active-p) (region-end) (point-max))))
-    (if (region-active-p) (message "Indenting Region") (message "Indenting File"))
     (let ((inhibit-message t))
       (indent-region beg end))
     (whitespace-cleanup)
-    (untabify beg (if (< end (point-max)) end (point-max)))))
+    (untabify beg (if (< end (point-max)) end (point-max)))
+    (if (region-active-p) (message "Indenting Region...Done") (message "Indenting File...Done"))))
 
 (defun phil-columns ()
-  "Good 'ol Phil-Columns."
+  "LO: Good 'ol Phil-Columns."
   (interactive)
   (message "Good 'ol fill-columns")
   (with-output-to-temp-buffer "*PHIL-COLUMN*"
-    (shell-command "mpv --no-video 'https://www.youtube.com/watch?v=YkADj0TPrJA&t=3m16s' > /dev/null 2>&1 & sleep 7; pkill mpv"))
+    (shell-command "mpv --no-video 'https://www.youtube.com/watch?v=YkADj0TPrJA&t=3m16s' > /dev/null 2>&1 & sleep 8; pkill mpv"))
   (other-window 1)
   (delete-window))
 
@@ -489,14 +568,19 @@
 (define-key global-map          (kbd "M-p")          'jump-to-previous-like-this)
 (define-key global-map          (kbd "M-n")          'jump-to-next-like-this)
 (define-key global-map          (kbd "M-<tab>")      'switch-to-next-buffer)
-(define-key global-map          (kbd "M-<backspace>")'backward-delete-to-word)
-(define-key global-map          (kbd "C-<backspace>")'backward-delete-to-word)
+(define-key global-map          (kbd "M-<backspace>")'delete-backward-to-boundary)
+(define-key global-map          (kbd "C-<backspace>")'delete-backward-to-boundary)
 
 (global-set-key                 (kbd "C-S-<down>")   'mc/mark-next-like-this)
 (global-set-key                 (kbd "C->")          'mc/mark-next-like-this)
 (global-set-key                 (kbd "C-S-<up>")     'mc/mark-previous-like-this)
 (global-set-key                 (kbd "C-<")          'mc/mark-previous-like-this)
 (global-set-key                 (kbd "C-c C->")      'mc/mark-all-like-this)
+(global-set-key                 "%"                  'match-paren)
+(global-set-key                 (kbd "C-x .")        'dash-at-point)
+(global-set-key                 (kbd "C-x ,")        'dash-at-point-with-docset)
+(global-set-key                 (kbd "C-s")          (lambda () (interactive) (swiper (format "%s" (thing-at-point 'symbol)))))
+
 ;; (dolist (n (number-sequence 1 9))
 ;;   (global-set-key (kbd (concat "M-" (int-to-string n)))
 ;;                   (lambda () (interactive) (switch-shell n))))
