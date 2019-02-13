@@ -155,6 +155,9 @@
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
 
+(setq company-dabbrev-downcase nil)
+(setq company-idle-delay 0.1)
+
 (require 'diminish)
 (diminish 'auto-revert-mode)
 (eval-after-load "company" '(diminish 'company-mode))
@@ -274,7 +277,6 @@
                                                            (comint-send-string "*ansi-term*" "make\n")))
                           (set (make-local-variable 'company-backends) '(company-go))
                           (setq company-tooltip-limit 20
-                                company-idle-delay .3
                                 company-echo-delay 0
                                 company-begin-commands '(self-insert-command))
                           (gorepl-mode)))
@@ -318,7 +320,6 @@
           '(lambda ()
              (set (make-local-variable 'company-backends) '(company-tide))
              (setq company-tooltip-limit 20
-                   company-idle-delay .3
                    company-echo-delay 0
                    company-begin-commands '(self-insert-command)
                    tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
@@ -572,7 +573,7 @@
 (define-key global-map          (kbd "C-<backspace>")'delete-backward-to-boundary)
 
 (global-set-key                 (kbd "C-S-<down>")   'mc/mark-next-like-this)
-(global-set-key                 (kbd "C->")          'mc/mark-next-like-this)
+(global-set-key                 (kbd "C->")          'mc/mark-next-like-this-symbol)
 (global-set-key                 (kbd "C-S-<up>")     'mc/mark-previous-like-this)
 (global-set-key                 (kbd "C-<")          'mc/mark-previous-like-this)
 (global-set-key                 (kbd "C-c C->")      'mc/mark-all-like-this)
