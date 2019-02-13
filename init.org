@@ -5,6 +5,7 @@
 #+LANGUAGE:     en
 #+BABEL:        :cache yes
 #+HTML_HEAD:    <link rel="stylesheet" type="text/css" href="public/style.css" />
+#+EXPORT_FILE_NAME: index.html
 #+PROPERTY:     header-args :tangle yes
 #+OPTIONS:      num:10 whn:nil toc:10 H:10
 #+STARTUP:      content

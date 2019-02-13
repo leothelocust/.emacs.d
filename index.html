@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-02-01 Fri 18:16 -->
+<!-- 2019-02-13 Wed 14:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs Configuration</title>
@@ -235,48 +235,49 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org737b8c6">1. Summary</a></li>
-<li><a href="#orga65ac64">2. Required Magic</a>
+<li><a href="#org16a3131">1. Summary</a></li>
+<li><a href="#orgd2454b8">2. Required Magic</a>
 <ul>
-<li><a href="#orga908aed">2.1. Lexical Binding</a></li>
-<li><a href="#org32ca712">2.2. The Magical Glue</a></li>
+<li><a href="#orge7f7842">2.1. Lexical Binding</a></li>
+<li><a href="#orgeac8741">2.2. The Magical Glue</a></li>
 </ul>
 </li>
-<li><a href="#org842a733">3. Config</a>
+<li><a href="#orgdd7a8f9">3. Config</a>
 <ul>
-<li><a href="#orgcd6060c">3.1. Packages</a></li>
-<li><a href="#org685462a">3.2. Better Defaults</a></li>
-<li><a href="#orgee61788">3.3. Basic Customization</a></li>
-<li><a href="#orga2f8af3">3.4. Tools</a>
+<li><a href="#orgef94b48">3.1. Packages</a></li>
+<li><a href="#org9ed8991">3.2. Better Defaults</a></li>
+<li><a href="#orgf243037">3.3. Splash Screen</a></li>
+<li><a href="#orgb5be00a">3.4. Basic Customization</a></li>
+<li><a href="#org562681e">3.5. Tools</a>
 <ul>
-<li><a href="#org3584878">3.4.1. General</a></li>
-<li><a href="#org872b347">3.4.2. Company</a></li>
-<li><a href="#orgb37e8aa">3.4.3. Diminish</a></li>
-<li><a href="#orgc337b16">3.4.4. Dired</a></li>
-<li><a href="#orga203220">3.4.5. Ivy</a></li>
-<li><a href="#org2ac63fb">3.4.6. Magit</a></li>
-<li><a href="#org357130f">3.4.7. Projectile</a></li>
+<li><a href="#org109467d">3.5.1. General</a></li>
+<li><a href="#orgd250d2a">3.5.2. Company</a></li>
+<li><a href="#org9528493">3.5.3. Diminish</a></li>
+<li><a href="#org749f012">3.5.4. Dired</a></li>
+<li><a href="#org8d51860">3.5.5. Ivy</a></li>
+<li><a href="#org2368349">3.5.6. Magit</a></li>
+<li><a href="#org1a832bf">3.5.7. Projectile</a></li>
 </ul>
 </li>
-<li><a href="#org553b635">3.5. Development Specific</a>
+<li><a href="#org1fb6ffa">3.6. Development Specific</a>
 <ul>
-<li><a href="#org5269be0">3.5.1. General</a></li>
-<li><a href="#org0cfdfd7">3.5.2. Python</a></li>
-<li><a href="#org7e2dcf5">3.5.3. Go</a></li>
-<li><a href="#orgaa3649b">3.5.4. TypeScript</a>
+<li><a href="#org1702ed3">3.6.1. General</a></li>
+<li><a href="#org4730a23">3.6.2. Python</a></li>
+<li><a href="#org99bcdb6">3.6.3. Go</a></li>
+<li><a href="#orgdb1f163">3.6.4. TypeScript</a>
 <ul>
-<li><a href="#orgb3e710a">3.5.4.1. TSX</a></li>
-<li><a href="#orgab8c25b">3.5.4.2. JSX</a></li>
+<li><a href="#org8ffb8dc">3.6.4.1. TSX</a></li>
+<li><a href="#orgebde919">3.6.4.2. JSX</a></li>
 </ul>
 </li>
-<li><a href="#orgf1f2926">3.5.5. Org</a></li>
+<li><a href="#org25376dc">3.6.5. Org</a></li>
 </ul>
 </li>
-<li><a href="#org954dcbc">3.6. Functions</a></li>
-<li><a href="#org4ac8dcc">3.7. Bindings</a></li>
-<li><a href="#org1c23ed8">3.8. UI</a>
+<li><a href="#org248d7b2">3.7. Functions</a></li>
+<li><a href="#org094bf6b">3.8. Bindings</a></li>
+<li><a href="#orgeb794c7">3.9. UI</a>
 <ul>
-<li><a href="#orgbbd9ab5">3.8.1. Modeline</a></li>
+<li><a href="#org7e266c5">3.9.1. Modeline</a></li>
 </ul>
 </li>
 </ul>
@@ -285,20 +286,20 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org737b8c6" class="outline-2">
-<h2 id="org737b8c6"><span class="section-number-2">1</span> Summary</h2>
+<div id="outline-container-org16a3131" class="outline-2">
+<h2 id="org16a3131"><span class="section-number-2">1</span> Summary</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 I've really been wanting to have a nicely formatted emacs config file and this is my attempt at it.
 </p>
 </div>
 </div>
-<div id="outline-container-orga65ac64" class="outline-2">
-<h2 id="orga65ac64"><span class="section-number-2">2</span> Required Magic</h2>
+<div id="outline-container-orgd2454b8" class="outline-2">
+<h2 id="orgd2454b8"><span class="section-number-2">2</span> Required Magic</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orga908aed" class="outline-3">
-<h3 id="orga908aed"><span class="section-number-3">2.1</span> Lexical Binding</h3>
+<div id="outline-container-orge7f7842" class="outline-3">
+<h3 id="orge7f7842"><span class="section-number-3">2.1</span> Lexical Binding</h3>
 <div class="outline-text-3" id="text-2-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #3e4451;">;;; </span><span style="color: #545862;">-*- lexical-binding: t -*-</span>
@@ -309,8 +310,8 @@ I've really been wanting to have a nicely formatted emacs config file and this i
 </div>
 </div>
 
-<div id="outline-container-org32ca712" class="outline-3">
-<h3 id="org32ca712"><span class="section-number-3">2.2</span> The Magical Glue</h3>
+<div id="outline-container-orgeac8741" class="outline-3">
+<h3 id="orgeac8741"><span class="section-number-3">2.2</span> The Magical Glue</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 The following auto compiles the emacs-lisp within the <code>init.org</code> file.
@@ -335,12 +336,12 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org842a733" class="outline-2">
-<h2 id="org842a733"><span class="section-number-2">3</span> Config</h2>
+<div id="outline-container-orgdd7a8f9" class="outline-2">
+<h2 id="orgdd7a8f9"><span class="section-number-2">3</span> Config</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgcd6060c" class="outline-3">
-<h3 id="orgcd6060c"><span class="section-number-3">3.1</span> Packages</h3>
+<div id="outline-container-orgef94b48" class="outline-3">
+<h3 id="orgef94b48"><span class="section-number-3">3.1</span> Packages</h3>
 <div class="outline-text-3" id="text-3-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">package</span><span style="color: #c678dd;">)</span>
@@ -354,6 +355,7 @@ Simply run `org-babel-tangle` to make it RAIN!
     company-go
     counsel
     counsel-projectile
+    dash-at-point
     diminish
     dockerfile-mode
     doom-themes
@@ -361,6 +363,7 @@ Simply run `org-babel-tangle` to make it RAIN!
     eldoc-eval
     elpy
     expand-region
+    fic-mode
     gitignore-mode
     go-mode
     go-playground
@@ -398,8 +401,8 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org685462a" class="outline-3">
-<h3 id="org685462a"><span class="section-number-3">3.2</span> Better Defaults</h3>
+<div id="outline-container-org9ed8991" class="outline-3">
+<h3 id="org9ed8991"><span class="section-number-3">3.2</span> Better Defaults</h3>
 <div class="outline-text-3" id="text-3-2">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">better-defaults</span><span style="color: #c678dd;">)</span>
@@ -413,20 +416,67 @@ Simply run `org-babel-tangle` to make it RAIN!
           <span style="color: #98c379;">(</span>run-with-idle-timer 0.1 nil
                                <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">lambda</span> <span style="color: #d19a66;">(</span>fg<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>set-face-foreground 'mode-line fg<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span>
                                orig-fg<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">set-frame-size-according-to-resolution</span> <span style="color: #61afef;">()</span>
+  <span style="color: #565c64;">"Set the Emacs window size on startup."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">if</span> window-system
+      <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">progn</span>
+        <span style="color: #3e4451;">;; </span><span style="color: #545862;">WIDTH</span>
+        <span style="color: #98c379;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e5c07b;">(</span>&gt; <span style="color: #d19a66;">(</span>x-display-pixel-width<span style="color: #d19a66;">)</span> 1280<span style="color: #e5c07b;">)</span>
+            <span style="color: #3e4451;">;; </span><span style="color: #545862;">Large Screen (only show 120 cols)</span>
+            <span style="color: #e5c07b;">(</span>add-to-list 'default-frame-alist <span style="color: #d19a66;">(</span>cons 'width 240<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span>
+          <span style="color: #3e4451;">;; </span><span style="color: #545862;">Small Screen (fill window)</span>
+          <span style="color: #e5c07b;">(</span>add-to-list 'default-frame-alist <span style="color: #d19a66;">(</span>cons 'width <span style="color: #e06c75;">(</span>/ <span style="color: #545862;">(</span>x-display-pixel-width<span style="color: #545862;">)</span> <span style="color: #545862;">(</span>frame-char-width<span style="color: #545862;">)</span><span style="color: #e06c75;">)</span><span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
+
+        <span style="color: #3e4451;">;; </span><span style="color: #545862;">HEIGHT</span>
+        <span style="color: #98c379;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e5c07b;">(</span>&gt; <span style="color: #d19a66;">(</span>x-display-pixel-height<span style="color: #d19a66;">)</span> 1080<span style="color: #e5c07b;">)</span>
+            <span style="color: #3e4451;">;; </span><span style="color: #545862;">Large Screen (only fill half screen)</span>
+            <span style="color: #e5c07b;">(</span>add-to-list 'default-frame-alist <span style="color: #d19a66;">(</span>cons 'height <span style="color: #e06c75;">(</span>/ <span style="color: #545862;">(</span>/ <span style="color: #abb2bf;">(</span>x-display-pixel-height<span style="color: #abb2bf;">)</span> 2<span style="color: #545862;">)</span>
+                                                               <span style="color: #545862;">(</span>frame-char-height<span style="color: #545862;">)</span><span style="color: #e06c75;">)</span><span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span>
+          <span style="color: #3e4451;">;; </span><span style="color: #545862;">Small Screen (fill window)</span>
+          <span style="color: #e5c07b;">(</span>add-to-list 'default-frame-alist <span style="color: #d19a66;">(</span>cons 'height <span style="color: #e06c75;">(</span>/ <span style="color: #545862;">(</span>x-display-pixel-height<span style="color: #545862;">)</span> <span style="color: #545862;">(</span>frame-char-height<span style="color: #545862;">)</span><span style="color: #e06c75;">)</span><span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
+        <span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span>set-frame-size-according-to-resolution<span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">window-px-width</span> <span style="color: #61afef;">()</span>
+  <span style="color: #565c64;">"Get the width of the Emacs window in pixels."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span>* <span style="color: #56b6c2;">(</span>* <span style="color: #98c379;">(</span>window-total-width<span style="color: #98c379;">)</span> 2.874<span style="color: #56b6c2;">)</span> <span style="color: #56b6c2;">(</span>frame-char-width<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">window-px-left-pos</span> <span style="color: #61afef;">()</span>
+  <span style="color: #565c64;">"Calculate the left position of the Emacs window."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span>/ <span style="color: #56b6c2;">(</span>- <span style="color: #98c379;">(</span>x-display-pixel-width<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>window-px-width<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span> 2<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
+
+<span style="color: #c678dd;">(</span>add-to-list 'default-frame-alist <span style="color: #61afef;">(</span>cons 'top 0<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>add-to-list 'default-frame-alist <span style="color: #61afef;">(</span>cons 'left 1000<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgee61788" class="outline-3">
-<h3 id="orgee61788"><span class="section-number-3">3.3</span> Basic Customization</h3>
+<div id="outline-container-orgf243037" class="outline-3">
+<h3 id="orgf243037"><span class="section-number-3">3.3</span> Splash Screen</h3>
 <div class="outline-text-3" id="text-3-3">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> inhibit-splash-screen nil
+      fancy-splash-image <span style="color: #98c379;">"~/.emacs.d/public/emacs-logo.png"</span>
+      fancy-splash-image-file <span style="color: #98c379;">"~/.emacs.d/public/emacs-logo.png"</span><span style="color: #c678dd;">)</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb5be00a" class="outline-3">
+<h3 id="orgb5be00a"><span class="section-number-3">3.4</span> Basic Customization</h3>
+<div class="outline-text-3" id="text-3-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">defvar</span> <span style="color: #e06c75;">backup-dir</span> <span style="color: #61afef;">(</span>expand-file-name <span style="color: #98c379;">"~/.emacs.d/backup/"</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defvar</span> <span style="color: #e06c75;">autosave-dir</span> <span style="color: #61afef;">(</span>expand-file-name <span style="color: #98c379;">"~/.emacs.d/autosave/"</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
-<span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> inhibit-startup-message t
-      initial-scratch-message nil
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> initial-scratch-message nil
       backup-directory-alist <span style="color: #61afef;">(</span>list <span style="color: #56b6c2;">(</span>cons <span style="color: #98c379;">".*"</span> backup-dir<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span>
       auto-save-list-file-prefix autosave-dir
       auto-save-file-name-transforms `<span style="color: #61afef;">(</span><span style="color: #56b6c2;">(</span><span style="color: #98c379;">".*"</span> ,autosave-dir t<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -452,36 +502,42 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-orga2f8af3" class="outline-3">
-<h3 id="orga2f8af3"><span class="section-number-3">3.4</span> Tools</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-org562681e" class="outline-3">
+<h3 id="org562681e"><span class="section-number-3">3.5</span> Tools</h3>
+<div class="outline-text-3" id="text-3-5">
 </div>
-<div id="outline-container-org3584878" class="outline-4">
-<h4 id="org3584878"><span class="section-number-4">3.4.1</span> General</h4>
-<div class="outline-text-4" id="text-3-4-1">
+<div id="outline-container-org109467d" class="outline-4">
+<h4 id="org109467d"><span class="section-number-4">3.5.1</span> General</h4>
+<div class="outline-text-4" id="text-3-5-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">which-key</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>which-key-setup-minibuffer<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>which-key-mode<span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">fic-mode</span><span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>add-hook 'js-mode-hook 'fic-mode<span style="color: #c678dd;">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org872b347" class="outline-4">
-<h4 id="org872b347"><span class="section-number-4">3.4.2</span> Company</h4>
-<div class="outline-text-4" id="text-3-4-2">
+<div id="outline-container-orgd250d2a" class="outline-4">
+<h4 id="orgd250d2a"><span class="section-number-4">3.5.2</span> Company</h4>
+<div class="outline-text-4" id="text-3-5-2">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">company</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>add-hook 'after-init-hook 'global-company-mode<span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> company-dabbrev-downcase nil<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> company-idle-delay 0.1<span style="color: #c678dd;">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgb37e8aa" class="outline-4">
-<h4 id="orgb37e8aa"><span class="section-number-4">3.4.3</span> Diminish</h4>
-<div class="outline-text-4" id="text-3-4-3">
+<div id="outline-container-org9528493" class="outline-4">
+<h4 id="org9528493"><span class="section-number-4">3.5.3</span> Diminish</h4>
+<div class="outline-text-4" id="text-3-5-3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">diminish</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>diminish 'auto-revert-mode<span style="color: #c678dd;">)</span>
@@ -500,9 +556,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-orgc337b16" class="outline-4">
-<h4 id="orgc337b16"><span class="section-number-4">3.4.4</span> Dired</h4>
-<div class="outline-text-4" id="text-3-4-4">
+<div id="outline-container-org749f012" class="outline-4">
+<h4 id="org749f012"><span class="section-number-4">3.5.4</span> Dired</h4>
+<div class="outline-text-4" id="text-3-5-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">dired-mode-setup</span> <span style="color: #61afef;">()</span>
   <span style="color: #565c64;">"Will run as hook for `</span><span style="color: #d19a66;">dired-mode</span><span style="color: #565c64;">'."</span>
@@ -512,9 +568,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 </div>
-<div id="outline-container-orga203220" class="outline-4">
-<h4 id="orga203220"><span class="section-number-4">3.4.5</span> Ivy</h4>
-<div class="outline-text-4" id="text-3-4-5">
+<div id="outline-container-org8d51860" class="outline-4">
+<h4 id="org8d51860"><span class="section-number-4">3.5.5</span> Ivy</h4>
+<div class="outline-text-4" id="text-3-5-5">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">ivy-hydra</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">ivy</span><span style="color: #c678dd;">)</span>
@@ -553,9 +609,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org2ac63fb" class="outline-4">
-<h4 id="org2ac63fb"><span class="section-number-4">3.4.6</span> Magit</h4>
-<div class="outline-text-4" id="text-3-4-6">
+<div id="outline-container-org2368349" class="outline-4">
+<h4 id="org2368349"><span class="section-number-4">3.5.6</span> Magit</h4>
+<div class="outline-text-4" id="text-3-5-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">magit</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>global-set-key <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-x g"</span><span style="color: #61afef;">)</span> 'magit-status<span style="color: #c678dd;">)</span>
@@ -566,9 +622,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org357130f" class="outline-4">
-<h4 id="org357130f"><span class="section-number-4">3.4.7</span> Projectile</h4>
-<div class="outline-text-4" id="text-3-4-7">
+<div id="outline-container-org1a832bf" class="outline-4">
+<h4 id="org1a832bf"><span class="section-number-4">3.5.7</span> Projectile</h4>
+<div class="outline-text-4" id="text-3-5-7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">projectile</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">counsel-projectile</span><span style="color: #c678dd;">)</span>
@@ -584,13 +640,13 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org553b635" class="outline-3">
-<h3 id="org553b635"><span class="section-number-3">3.5</span> Development Specific</h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-org1fb6ffa" class="outline-3">
+<h3 id="org1fb6ffa"><span class="section-number-3">3.6</span> Development Specific</h3>
+<div class="outline-text-3" id="text-3-6">
 </div>
-<div id="outline-container-org5269be0" class="outline-4">
-<h4 id="org5269be0"><span class="section-number-4">3.5.1</span> General</h4>
-<div class="outline-text-4" id="text-3-5-1">
+<div id="outline-container-org1702ed3" class="outline-4">
+<h4 id="org1702ed3"><span class="section-number-4">3.6.1</span> General</h4>
+<div class="outline-text-4" id="text-3-6-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">rainbow-delimiters</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>global-flycheck-mode<span style="color: #c678dd;">)</span>
@@ -622,9 +678,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org0cfdfd7" class="outline-4">
-<h4 id="org0cfdfd7"><span class="section-number-4">3.5.2</span> Python</h4>
-<div class="outline-text-4" id="text-3-5-2">
+<div id="outline-container-org4730a23" class="outline-4">
+<h4 id="org4730a23"><span class="section-number-4">3.6.2</span> Python</h4>
+<div class="outline-text-4" id="text-3-6-2">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span>elpy-enable<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">setq</span> python-shell-interpreter <span style="color: #98c379;">"jupyter"</span>
@@ -642,9 +698,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org7e2dcf5" class="outline-4">
-<h4 id="org7e2dcf5"><span class="section-number-4">3.5.3</span> Go</h4>
-<div class="outline-text-4" id="text-3-5-3">
+<div id="outline-container-org99bcdb6" class="outline-4">
+<h4 id="org99bcdb6"><span class="section-number-4">3.6.3</span> Go</h4>
+<div class="outline-text-4" id="text-3-6-3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">go-mode</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">go-playground</span><span style="color: #c678dd;">)</span>
@@ -653,12 +709,15 @@ Simply run `org-babel-tangle` to make it RAIN!
 
 <span style="color: #c678dd;">(</span>add-to-list 'auto-mode-alist '<span style="color: #61afef;">(</span><span style="color: #98c379;">"\\.go\\'"</span> . go-mode<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>add-hook 'go-mode-hook <span style="color: #61afef;">(</span><span style="color: #c678dd;">lambda</span> <span style="color: #56b6c2;">()</span>
-                          <span style="color: #56b6c2;">(</span>add-hook 'before-save-hook 'gofmnt-before-save<span style="color: #56b6c2;">)</span>
+                          <span style="color: #56b6c2;">(</span>add-hook 'before-save-hook 'gofmt-before-save<span style="color: #56b6c2;">)</span>
                           <span style="color: #56b6c2;">(</span>local-set-key <span style="color: #98c379;">(</span>kbd <span style="color: #98c379;">"M-."</span><span style="color: #98c379;">)</span> 'godef-jump<span style="color: #56b6c2;">)</span>
                           <span style="color: #56b6c2;">(</span>local-set-key <span style="color: #98c379;">(</span>kbd <span style="color: #98c379;">"M-,"</span><span style="color: #98c379;">)</span> 'pop-tag-mark<span style="color: #56b6c2;">)</span>
+                          <span style="color: #56b6c2;">(</span>local-set-key <span style="color: #98c379;">(</span>kbd <span style="color: #98c379;">"C-c C-c"</span><span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span><span style="color: #c678dd;">lambda</span> <span style="color: #e5c07b;">()</span>
+                                                           <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #e5c07b;">)</span>
+                                                           <span style="color: #e5c07b;">(</span>ansi-term<span style="color: #e5c07b;">)</span>
+                                                           <span style="color: #e5c07b;">(</span>comint-send-string <span style="color: #98c379;">"*ansi-term*"</span> <span style="color: #98c379;">"make\n"</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
                           <span style="color: #56b6c2;">(</span>set <span style="color: #98c379;">(</span>make-local-variable 'company-backends<span style="color: #98c379;">)</span> '<span style="color: #98c379;">(</span>company-go<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
                           <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">setq</span> company-tooltip-limit 20
-                                company-idle-delay .3
                                 company-echo-delay 0
                                 company-begin-commands '<span style="color: #98c379;">(</span>self-insert-command<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
                           <span style="color: #56b6c2;">(</span>gorepl-mode<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -673,16 +732,16 @@ Simply run `org-babel-tangle` to make it RAIN!
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">when</span> window-system <span style="color: #61afef;">(</span>set-exec-path-from-shell-PATH<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
-<span style="color: #c678dd;">(</span>setenv <span style="color: #98c379;">"GOPATH"</span> <span style="color: #98c379;">"/home/leviolson/go"</span><span style="color: #c678dd;">)</span>
-<span style="color: #c678dd;">(</span>add-to-list 'exec-path <span style="color: #98c379;">"/home/leviolson/go/bin"</span><span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>setenv <span style="color: #98c379;">"GOPATH"</span> <span style="color: #98c379;">"/Users/leviolson/go"</span><span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>add-to-list 'exec-path <span style="color: #98c379;">"/Users/leviolson/go/bin"</span><span style="color: #c678dd;">)</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgaa3649b" class="outline-4">
-<h4 id="orgaa3649b"><span class="section-number-4">3.5.4</span> TypeScript</h4>
-<div class="outline-text-4" id="text-3-5-4">
+<div id="outline-container-orgdb1f163" class="outline-4">
+<h4 id="orgdb1f163"><span class="section-number-4">3.6.4</span> TypeScript</h4>
+<div class="outline-text-4" id="text-3-6-4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">setup-tide-mode</span> <span style="color: #61afef;">()</span>
   <span style="color: #565c64;">"Tide setup function."</span>
@@ -710,7 +769,6 @@ Simply run `org-babel-tangle` to make it RAIN!
           '<span style="color: #61afef;">(</span>lambda <span style="color: #56b6c2;">()</span>
              <span style="color: #56b6c2;">(</span>set <span style="color: #98c379;">(</span>make-local-variable 'company-backends<span style="color: #98c379;">)</span> '<span style="color: #98c379;">(</span>company-tide<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
              <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">setq</span> company-tooltip-limit 20
-                   company-idle-delay .3
                    company-echo-delay 0
                    company-begin-commands '<span style="color: #98c379;">(</span>self-insert-command<span style="color: #98c379;">)</span>
                    tide-format-options '<span style="color: #98c379;">(</span><span style="color: #56b6c2;">:insertSpaceAfterFunctionKeywordForAnonymousFunctions</span> t <span style="color: #56b6c2;">:placeOpenBraceOnNewLineForFunctions</span> nil<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
@@ -718,9 +776,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </pre>
 </div>
 </div>
-<div id="outline-container-orgb3e710a" class="outline-5">
-<h5 id="orgb3e710a"><span class="section-number-5">3.5.4.1</span> TSX</h5>
-<div class="outline-text-5" id="text-3-5-4-1">
+<div id="outline-container-org8ffb8dc" class="outline-5">
+<h5 id="org8ffb8dc"><span class="section-number-5">3.6.4.1</span> TSX</h5>
+<div class="outline-text-5" id="text-3-6-4-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">web-mode</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>add-to-list 'auto-mode-alist '<span style="color: #61afef;">(</span><span style="color: #98c379;">"\\.tsx\\'"</span> . web-mode<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -734,9 +792,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 </div>
-<div id="outline-container-orgab8c25b" class="outline-5">
-<h5 id="orgab8c25b"><span class="section-number-5">3.5.4.2</span> JSX</h5>
-<div class="outline-text-5" id="text-3-5-4-2">
+<div id="outline-container-orgebde919" class="outline-5">
+<h5 id="orgebde919"><span class="section-number-5">3.6.4.2</span> JSX</h5>
+<div class="outline-text-5" id="text-3-6-4-2">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">web-mode</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>add-to-list 'auto-mode-alist '<span style="color: #61afef;">(</span><span style="color: #98c379;">"\\.jsx\\'"</span> . web-mode<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -752,9 +810,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 </div>
-<div id="outline-container-orgf1f2926" class="outline-4">
-<h4 id="orgf1f2926"><span class="section-number-4">3.5.5</span> Org</h4>
-<div class="outline-text-4" id="text-3-5-5">
+<div id="outline-container-org25376dc" class="outline-4">
+<h4 id="org25376dc"><span class="section-number-4">3.6.5</span> Org</h4>
+<div class="outline-text-4" id="text-3-6-5">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span>org-babel-do-load-languages
  'org-babel-load-languages
@@ -794,9 +852,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 </div>
-<div id="outline-container-org954dcbc" class="outline-3">
-<h3 id="org954dcbc"><span class="section-number-3">3.6</span> Functions</h3>
-<div class="outline-text-3" id="text-3-6">
+<div id="outline-container-org248d7b2" class="outline-3">
+<h3 id="org248d7b2"><span class="section-number-3">3.7</span> Functions</h3>
+<div class="outline-text-3" id="text-3-7">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">find-user-init-file</span> <span style="color: #61afef;">()</span>
   <span style="color: #565c64;">"Edit the `</span><span style="color: #d19a66;">~/.emacs.d/init.org</span><span style="color: #565c64;">' file."</span>
@@ -804,7 +862,7 @@ Simply run `org-babel-tangle` to make it RAIN!
   <span style="color: #61afef;">(</span>find-file <span style="color: #98c379;">"~/.emacs.d/init.org"</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">load-user-init-file</span> <span style="color: #61afef;">()</span>
-  <span style="color: #565c64;">"Reload the `</span><span style="color: #d19a66;">~/.emacs.d/init.elc</span><span style="color: #565c64;">' file."</span>
+  <span style="color: #565c64;">"LO: Reload the `</span><span style="color: #d19a66;">~/.emacs.d/init.elc</span><span style="color: #565c64;">' file."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>load-file <span style="color: #98c379;">"~/.emacs.d/init.elc"</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
@@ -832,6 +890,14 @@ Simply run `org-babel-tangle` to make it RAIN!
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>jump-to-symbol-internal<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">match-paren</span> <span style="color: #61afef;">(</span>arg<span style="color: #61afef;">)</span>
+  <span style="color: #565c64;">"Go to the matching paren if on a paren; otherwise insert ARG (a literal % sign)."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"p"</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">cond</span> <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>looking-at <span style="color: #98c379;">"\\s("</span><span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>forward-list 1<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+        <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>looking-back <span style="color: #98c379;">"\\s("</span> 2<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>backward-char 1<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>forward-list 1<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+        <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>looking-at <span style="color: #98c379;">"\\s)"</span><span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>forward-char 1<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>backward-list 1<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+        <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>looking-back <span style="color: #98c379;">"\\s)"</span> 2<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>backward-list 1<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+        <span style="color: #56b6c2;">(</span>t <span style="color: #98c379;">(</span>self-insert-command <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">or</span> arg 1<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">kill-this-buffer-unless-scratch</span> <span style="color: #61afef;">()</span>
   <span style="color: #565c64;">"Works like `</span><span style="color: #d19a66;">kill-this-buffer</span><span style="color: #565c64;">' unless the current buffer is the *scratch* buffer.  In which case the buffer content is deleted and the buffer is buried."</span>
@@ -842,10 +908,24 @@ Simply run `org-babel-tangle` to make it RAIN!
     <span style="color: #56b6c2;">(</span>switch-to-buffer <span style="color: #98c379;">(</span>other-buffer<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
     <span style="color: #56b6c2;">(</span>bury-buffer <span style="color: #98c379;">"*scratch*"</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
-<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">backward-delete-to-word</span> <span style="color: #61afef;">(</span>arg<span style="color: #61afef;">)</span>
-  <span style="color: #565c64;">"Delete words backward.  With ARG, do this many times."</span>
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">delete-backward-sentence</span> <span style="color: #61afef;">()</span>
+  <span style="color: #565c64;">"LO: Delete to the beginning of the sentence/line."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span>delete-region <span style="color: #56b6c2;">(</span>point<span style="color: #56b6c2;">)</span> <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">progn</span> <span style="color: #98c379;">(</span>backward-sentence<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>point<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">delete-backward-to-boundary</span> <span style="color: #61afef;">(</span>arg<span style="color: #61afef;">)</span>
+  <span style="color: #565c64;">"LO: Delete backward to the previous word boundary.  With ARG, do this many times."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"p"</span><span style="color: #61afef;">)</span>
-  <span style="color: #61afef;">(</span>delete-region <span style="color: #56b6c2;">(</span>point<span style="color: #56b6c2;">)</span> <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">progn</span> <span style="color: #98c379;">(</span>backward-to-word arg<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>point<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">let</span> <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>a <span style="color: #e5c07b;">(</span>point<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
+        <span style="color: #98c379;">(</span>b <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">progn</span>
+             <span style="color: #d19a66;">(</span>backward-word arg<span style="color: #d19a66;">)</span>
+             <span style="color: #d19a66;">(</span>forward-word<span style="color: #d19a66;">)</span>
+             <span style="color: #d19a66;">(</span>point<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+    <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">if</span> <span style="color: #98c379;">(</span>&lt; a b<span style="color: #98c379;">)</span>
+        <span style="color: #98c379;">(</span>delete-region a <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">progn</span> <span style="color: #d19a66;">(</span>backward-word arg<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>point<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
+      <span style="color: #98c379;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e5c07b;">(</span>= a b<span style="color: #e5c07b;">)</span>
+          <span style="color: #e5c07b;">(</span>delete-region a <span style="color: #d19a66;">(</span><span style="color: #c678dd;">progn</span> <span style="color: #e06c75;">(</span>backward-word arg<span style="color: #e06c75;">)</span> <span style="color: #e06c75;">(</span>point<span style="color: #e06c75;">)</span><span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span>
+        <span style="color: #e5c07b;">(</span>delete-region a b<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">comment-or-uncomment-region-or-line</span> <span style="color: #61afef;">()</span>
   <span style="color: #565c64;">"Comments or uncomments the region or the current line if there's no active region."</span>
@@ -856,21 +936,29 @@ Simply run `org-babel-tangle` to make it RAIN!
       <span style="color: #98c379;">(</span><span style="color: #c678dd;">setq</span> beg <span style="color: #e5c07b;">(</span>line-beginning-position<span style="color: #e5c07b;">)</span> end <span style="color: #e5c07b;">(</span>line-end-position<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
     <span style="color: #56b6c2;">(</span>comment-or-uncomment-region beg end<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
+<span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">fold-toggle</span> <span style="color: #61afef;">(</span>column<span style="color: #61afef;">)</span>
+  <span style="color: #565c64;">"Code folding by COLUMN."</span>
+  <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span><span style="color: #61afef;">)</span>
+  <span style="color: #61afef;">(</span>set-selective-display
+   <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">or</span> column
+       <span style="color: #98c379;">(</span><span style="color: #c678dd;">unless</span> selective-display
+         <span style="color: #e5c07b;">(</span>1+ <span style="color: #d19a66;">(</span>current-column<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">new-line-below</span> <span style="color: #61afef;">()</span>
-  <span style="color: #565c64;">"Create a new line below current line."</span>
+  <span style="color: #565c64;">"LO: Create a new line below current line."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>move-end-of-line 1<span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>newline-and-indent<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">new-line-above</span> <span style="color: #61afef;">()</span>
-  <span style="color: #565c64;">"Create a new line above current line."</span>
+  <span style="color: #565c64;">"LO: Create a new line above current line."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>move-beginning-of-line 1<span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>newline<span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>forward-line -1<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">duplicate-thing</span> <span style="color: #61afef;">(</span>comment<span style="color: #61afef;">)</span>
-  <span style="color: #565c64;">"Duplicates the current line, or the region if active.  If an argument (COMMENT) is given, the duplicated region will be commented out."</span>
+  <span style="color: #565c64;">"LO: Duplicates the current line, or the region if active.  If an argument (COMMENT) is given, the duplicated region will be commented out."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span> <span style="color: #98c379;">"P"</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">save-excursion</span>
     <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">let</span> <span style="color: #98c379;">(</span><span style="color: #e5c07b;">(</span>start <span style="color: #d19a66;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e06c75;">(</span>region-active-p<span style="color: #e06c75;">)</span> <span style="color: #e06c75;">(</span>region-beginning<span style="color: #e06c75;">)</span> <span style="color: #e06c75;">(</span>point-at-bol<span style="color: #e06c75;">)</span><span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span>
@@ -882,22 +970,22 @@ Simply run `org-babel-tangle` to make it RAIN!
       <span style="color: #98c379;">(</span><span style="color: #c678dd;">when</span> comment <span style="color: #e5c07b;">(</span>comment-region start end<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">tidy</span> <span style="color: #61afef;">()</span>
-  <span style="color: #565c64;">"Ident, untabify and unwhitespacify current buffer, or region if active."</span>
+  <span style="color: #565c64;">"LO: Ident, untabify and unwhitespacify current buffer, or region if active."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">let</span> <span style="color: #56b6c2;">(</span><span style="color: #98c379;">(</span>beg <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">if</span> <span style="color: #d19a66;">(</span>region-active-p<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>region-beginning<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>point-min<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
         <span style="color: #98c379;">(</span>end <span style="color: #e5c07b;">(</span><span style="color: #c678dd;">if</span> <span style="color: #d19a66;">(</span>region-active-p<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>region-end<span style="color: #d19a66;">)</span> <span style="color: #d19a66;">(</span>point-max<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
-    <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">if</span> <span style="color: #98c379;">(</span>region-active-p<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>message <span style="color: #98c379;">"Indenting Region"</span><span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>message <span style="color: #98c379;">"Indenting File"</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
     <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">let</span> <span style="color: #98c379;">(</span><span style="color: #e5c07b;">(</span>inhibit-message t<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span>
       <span style="color: #98c379;">(</span>indent-region beg end<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
     <span style="color: #56b6c2;">(</span>whitespace-cleanup<span style="color: #56b6c2;">)</span>
-    <span style="color: #56b6c2;">(</span>untabify beg <span style="color: #98c379;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e5c07b;">(</span>&lt; end <span style="color: #d19a66;">(</span>point-max<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span> end <span style="color: #e5c07b;">(</span>point-max<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+    <span style="color: #56b6c2;">(</span>untabify beg <span style="color: #98c379;">(</span><span style="color: #c678dd;">if</span> <span style="color: #e5c07b;">(</span>&lt; end <span style="color: #d19a66;">(</span>point-max<span style="color: #d19a66;">)</span><span style="color: #e5c07b;">)</span> end <span style="color: #e5c07b;">(</span>point-max<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
+    <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">if</span> <span style="color: #98c379;">(</span>region-active-p<span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>message <span style="color: #98c379;">"Indenting Region...Done"</span><span style="color: #98c379;">)</span> <span style="color: #98c379;">(</span>message <span style="color: #98c379;">"Indenting File...Done"</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">defun</span> <span style="color: #61afef;">phil-columns</span> <span style="color: #61afef;">()</span>
-  <span style="color: #565c64;">"Good 'ol Phil-Columns."</span>
+  <span style="color: #565c64;">"LO: Good 'ol Phil-Columns."</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>message <span style="color: #98c379;">"Good 'ol fill-columns"</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span><span style="color: #c678dd;">with-output-to-temp-buffer</span> <span style="color: #98c379;">"*PHIL-COLUMN*"</span>
-    <span style="color: #56b6c2;">(</span>shell-command <span style="color: #98c379;">"mpv --no-video 'https://www.youtube.com/watch?v=YkADj0TPrJA&amp;t=3m16s' &gt; /dev/null 2&gt;&amp;1 &amp; sleep 7; pkill mpv"</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span>
+    <span style="color: #56b6c2;">(</span>shell-command <span style="color: #98c379;">"mpv --no-video 'https://www.youtube.com/watch?v=YkADj0TPrJA&amp;t=3m16s' &gt; /dev/null 2&gt;&amp;1 &amp; sleep 8; pkill mpv"</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>other-window 1<span style="color: #61afef;">)</span>
   <span style="color: #61afef;">(</span>delete-window<span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
 
@@ -948,9 +1036,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org4ac8dcc" class="outline-3">
-<h3 id="org4ac8dcc"><span class="section-number-3">3.7</span> Bindings</h3>
-<div class="outline-text-3" id="text-3-7">
+<div id="outline-container-org094bf6b" class="outline-3">
+<h3 id="org094bf6b"><span class="section-number-3">3.8</span> Bindings</h3>
+<div class="outline-text-3" id="text-3-8">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">company</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>add-hook 'comint-mode-hook <span style="color: #61afef;">(</span><span style="color: #c678dd;">lambda</span> <span style="color: #56b6c2;">()</span> <span style="color: #56b6c2;">(</span>local-set-key <span style="color: #98c379;">(</span>kbd <span style="color: #98c379;">"C-l"</span><span style="color: #98c379;">)</span> 'clear-comint<span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -967,14 +1055,19 @@ Simply run `org-babel-tangle` to make it RAIN!
 <span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"M-p"</span><span style="color: #61afef;">)</span>          'jump-to-previous-like-this<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"M-n"</span><span style="color: #61afef;">)</span>          'jump-to-next-like-this<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"M-&lt;tab&gt;"</span><span style="color: #61afef;">)</span>      'switch-to-next-buffer<span style="color: #c678dd;">)</span>
-<span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"M-&lt;backspace&gt;"</span><span style="color: #61afef;">)</span>'backward-delete-to-word<span style="color: #c678dd;">)</span>
-<span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-&lt;backspace&gt;"</span><span style="color: #61afef;">)</span>'backward-delete-to-word<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"M-&lt;backspace&gt;"</span><span style="color: #61afef;">)</span>'delete-backward-to-boundary<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>define-key global-map          <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-&lt;backspace&gt;"</span><span style="color: #61afef;">)</span>'delete-backward-to-boundary<span style="color: #c678dd;">)</span>
 
 <span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-S-&lt;down&gt;"</span><span style="color: #61afef;">)</span>   'mc/mark-next-like-this<span style="color: #c678dd;">)</span>
-<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-&gt;"</span><span style="color: #61afef;">)</span>          'mc/mark-next-like-this<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-&gt;"</span><span style="color: #61afef;">)</span>          'mc/mark-next-like-this-symbol<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-S-&lt;up&gt;"</span><span style="color: #61afef;">)</span>     'mc/mark-previous-like-this<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-&lt;"</span><span style="color: #61afef;">)</span>          'mc/mark-previous-like-this<span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-c C-&gt;"</span><span style="color: #61afef;">)</span>      'mc/mark-all-like-this<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #98c379;">"%"</span>                  'match-paren<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-x ."</span><span style="color: #61afef;">)</span>        'dash-at-point<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-x ,"</span><span style="color: #61afef;">)</span>        'dash-at-point-with-docset<span style="color: #c678dd;">)</span>
+<span style="color: #c678dd;">(</span>global-set-key                 <span style="color: #61afef;">(</span>kbd <span style="color: #98c379;">"C-s"</span><span style="color: #61afef;">)</span>          <span style="color: #61afef;">(</span><span style="color: #c678dd;">lambda</span> <span style="color: #56b6c2;">()</span> <span style="color: #56b6c2;">(</span><span style="color: #c678dd;">interactive</span><span style="color: #56b6c2;">)</span> <span style="color: #56b6c2;">(</span>swiper <span style="color: #98c379;">(</span>format <span style="color: #98c379;">"%s"</span> <span style="color: #e5c07b;">(</span>thing-at-point 'symbol<span style="color: #e5c07b;">)</span><span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
+
 <span style="color: #3e4451;">;; </span><span style="color: #545862;">(dolist (n (number-sequence 1 9))</span>
 <span style="color: #3e4451;">;;   </span><span style="color: #545862;">(global-set-key (kbd (concat "M-" (int-to-string n)))</span>
 <span style="color: #3e4451;">;;                   </span><span style="color: #545862;">(lambda () (interactive) (switch-shell n))))</span>
@@ -1026,9 +1119,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-org1c23ed8" class="outline-3">
-<h3 id="org1c23ed8"><span class="section-number-3">3.8</span> UI</h3>
-<div class="outline-text-3" id="text-3-8">
+<div id="outline-container-orgeb794c7" class="outline-3">
+<h3 id="orgeb794c7"><span class="section-number-3">3.9</span> UI</h3>
+<div class="outline-text-3" id="text-3-9">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">cond</span> <span style="color: #61afef;">(</span><span style="color: #56b6c2;">(</span>member <span style="color: #98c379;">"PragmataPro"</span> <span style="color: #98c379;">(</span>font-family-list<span style="color: #98c379;">)</span><span style="color: #56b6c2;">)</span>
        <span style="color: #56b6c2;">(</span>set-face-attribute 'default nil <span style="color: #56b6c2;">:font</span> <span style="color: #98c379;">"PragmataPro-14"</span><span style="color: #56b6c2;">)</span><span style="color: #61afef;">)</span><span style="color: #c678dd;">)</span>
@@ -1036,9 +1129,9 @@ Simply run `org-babel-tangle` to make it RAIN!
 </div>
 </div>
 
-<div id="outline-container-orgbbd9ab5" class="outline-4">
-<h4 id="orgbbd9ab5"><span class="section-number-4">3.8.1</span> Modeline</h4>
-<div class="outline-text-4" id="text-3-8-1">
+<div id="outline-container-org7e266c5" class="outline-4">
+<h4 id="org7e266c5"><span class="section-number-4">3.9.1</span> Modeline</h4>
+<div class="outline-text-4" id="text-3-9-1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">use-package</span><span style="color: #c678dd;">)</span>
 <span style="color: #c678dd;">(</span><span style="color: #c678dd;">require</span> '<span style="color: #d19a66;">anzu</span><span style="color: #c678dd;">)</span>
@@ -1818,7 +1911,7 @@ Simply run `org-babel-tangle` to make it RAIN!
 <div id="postamble" class="status">
 <p class="date">Date: 2019-01-30 Wed 00:00</p>
 <p class="author">Author: Levi Olson</p>
-<p class="date">Created: 2019-02-01 Fri 18:16</p>
+<p class="date">Created: 2019-02-13 Wed 14:20</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
