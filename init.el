@@ -33,29 +33,30 @@
     doom-themes
     ein
     eldoc-eval
+    elfeed
+    elfeed-org
     elpy
     expand-region
     fic-mode
+    flycheck
     gitignore-mode
     go-mode
     go-playground
     gorepl-mode
-    flycheck
     iedit
     ivy
     ivy-hydra
+    jabber
     json-mode
     magit
     material-theme
     multiple-cursors
-    nnir-est
     projectile
-    py-autopep8
     rainbow-delimiters
     shrink-path
     tide
     typescript-mode
-    use-package
+    ;; use-package
     web-mode
     which-key))
 
@@ -127,7 +128,7 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-(setq inhibit-splash-screen nil
+(setq inhibit-splash-screen t
       fancy-splash-image "~/.emacs.d/public/emacs-logo.png"
       fancy-splash-image-file "~/.emacs.d/public/emacs-logo.png")
 
@@ -142,7 +143,8 @@
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
-
+(setq auth-sources '("~/.authinfo.gpg"))
+(set-default 'truncate-lines t)
 
 ;; (load-theme 'doom-city-lights t)
 ;; (load-theme 'doom-dracula t)
@@ -239,6 +241,251 @@
 
 (provide 'openhab-mode)
 
+;;; hyperspace.el --- Get there from here           -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2017-2019  Ian Eure
+
+;; Author: Ian Eure <ian@retrospec.tv>
+;; URL: https://github.com/ieure/hyperspace-el
+;; Version: 0.8.4
+;; Package-Requires: ((emacs "25") (s "1.12.0"))
+;; Keywords: tools, convenience
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Hyperspace is a way to get nearly anywhere from wherever you are,
+;; whether that's within Emacs or on the web.  It's somewhere in
+;; between Quicksilver and keyword URLs, giving you a single,
+;; consistent interface to get directly where you want to go.  It’s
+;; for things that you use often, but not often enough to justify a
+;; dedicated binding.
+;;
+;; When you enter Hyperspace, it prompts you where to go:
+;;
+;; HS:
+;;
+;; This prompt expects a keyword and a query.  The keyword picks where
+;; you want to go, and the remainder of the input is an optional
+;; argument which can be used to further search or direct you within
+;; that space.
+;;
+;; Some concrete examples:
+;;
+;; | *If you enter*   | *then Hyperspace*                                        |
+;; |------------------+----------------------------------------------------------|
+;; | "el"             | opens info node "(elisp)Top"                             |
+;; | "el eval-region" | searches for "eval-region" in the elisp Info index       |
+;; | "bb"             | shows all BBDB entries                                   |
+;; | "bb kenneth"     | shows all BBDB entries with a name matching "kenneth"    |
+;; | "ddg foo"        | searches DuckDuckGo for "foo" using browse-url           |
+;; | "wp foo"         | searches Wikipedia for "foo" using browse-url            |
+;;
+
+;;; Code:
+
+(require 'subr-x)
+(require 's)
+
+;; Action helpers
+
+(defun hyperspace-action->browse-url-pattern (pattern query)
+  "Browse a URL former from PATTERN and QUERY."
+  (browse-url (format pattern query)))
+
+(defun hyperspace-action->info (node &optional query)
+  "Open an Info buffer for NODE.
+
+   If QUERY is present, look it up in the index."
+  (info node)
+  (when query
+    (Info-index query)))
+
+;; Package definitions
+
+(defvar hyperspace-history nil
+  "History of Hyperspace actions.")
+
+(defgroup hyperspace nil
+  "Getting there from here"
+  :prefix "hyperspace-"
+  :group 'applications)
+
+(defcustom hyperspace-actions
+  '(("ddg" . "https://duckduckgo.com/?q=%s")
+    ("dis" . "https://duckduckgo.com/?q=%s&iax=images&ia=images")
+    ("wp"  . "https://en.wikipedia.org/wiki/%s")
+    ("g"  . "https://www.google.com/search?q=%s")
+    ("gi" . "https://www.google.com/search?tbm=isch&q=%s")
+    ("gm" . "https://www.google.com/maps/search/%s")
+    ("yt" . "https://www.youtube.com/results?search_query=%s")
+    ("clp" . "https://portland.craigslist.org/search/sss?query=%s")
+    ("eb" .  "https://www.ebay.com/sch/i.html?_nkw=%s")
+    ("nf" . "https://www.netflix.com/search?q=%s")
+    ("sh" . (lambda (query) (interactive) (shell-command query)))
+    ("imdb" . "https://www.imdb.com/find?q=peter+jackson&s=all")
+    ("bb" . bbdb-search-name)
+    ("el" . (apply-partially #'hyperspace-action->info "(elisp)Top"))
+    ("av" . apropos-variable)
+    ("ac" . apropos-command)
+    ("af" . (lambda (query) (apropos-command query t))))
+
+  "Where Hyperspace should send you.
+
+   Hyperspace actions are a cons of (KEYWORD . DISPATCHER).  When
+   Hyperspace is invoked, the keyword is extracted from the user
+   input and looked up in this alist.  The remainder of the
+   string is passed to the dispatcher as its QUERY argument.
+
+   DISPATCHER can be a function which performs the action.
+
+   DISPATCHER can also be an expression which returns a function
+   to perform the action.
+
+   Finally, DISPATCHER can be a string with a URL pattern containing
+   '%s'.  The '%s' will be replaced with the query, and the URL browsed."
+
+  :group 'hyperspace
+  :type '(alist :key-type (string :tag "Keyword")
+                :value-type (choice
+                             (function :tag "Function")
+                             (string :tag "URL Pattern")
+                             (sexp :tag "Expression"))))
+
+(defcustom hyperspace-default-action
+  (caar hyperspace-actions)
+  "A place to go if you don't specify one."
+  :group 'hyperspace
+  :type `(radio
+          ,@(mapcar (lambda (action) (list 'const (car action))) hyperspace-actions)))
+
+(defcustom hyperspace-max-region-size 256
+  "Maximum size of a region to consider for a Hyperspace query.
+
+   If the region is active when Hyperspace is invoked, it's used
+   as the default query, unless it's more than this number of
+   characters."
+  :group 'hyperspace
+  :type 'integer)
+
+
+
+(defun hyperspace--cleanup (text)
+  "Clean TEXT so it can be used for a Hyperspace query."
+  (save-match-data
+    (string-trim
+     (replace-regexp-in-string (rx (1+ (or blank "\n"))) " " text))))
+
+(defun hyperspace--initial-text ()
+  "Return the initial text.
+
+   This is whatever's in the active region, but cleaned up."
+  (when (use-region-p)
+    (let* ((start (region-beginning))
+           (end (region-end))
+           (size (- end start)))
+      (when (<= size hyperspace-max-region-size)
+        (hyperspace--cleanup
+         (buffer-substring-no-properties start end))))))
+
+(defun hyperspace--initial (initial-text)
+  "Turn INITIAL-TEXT into INITIAL-CONTENTS for reading."
+  (when initial-text (cons (concat " " initial-text) 1)))
+
+(defun hyperspace--process-input (text)
+  "Process TEXT into an actionable keyword and query."
+  (let ((kw-text (s-split-up-to "\\s-+" text 1)))
+    (if (assoc (car kw-text) hyperspace-actions)
+        kw-text
+      (list hyperspace-default-action text))))
+
+(defun hyperspace--query ()
+  "Ask the user for the Hyperspace action and query.
+
+   Returns (KEYWORD . QUERY).
+
+   If the region isn't active, the user is prompted for the
+   action and query.
+
+   If the region is active, its text is used as the initial value
+   for the query, and the user enters the action.
+
+   If a prefix argument is specified and the region is active,
+   `HYPERSPACE-DEFAULT-ACTION' is chosen without prompting."
+
+  (let ((initial (hyperspace--initial-text)))
+    (if (and initial current-prefix-arg)
+        (list hyperspace-default-action initial)
+      (hyperspace--process-input
+       (read-from-minibuffer "HS: " (hyperspace--initial initial) nil nil
+                             'hyperspace-history)))))
+
+(defun hyperspace--evalable-p (form)
+  "Can FORM be evaluated?"
+  (and (listp form)
+       (or (functionp (car form))
+           (subrp (car form)))))
+
+(defun hyperspace--dispatch (action &optional query)
+  "Execute ACTION, with optional QUERY argument."
+  (pcase action
+    ((pred functionp) (funcall action query))
+    ((pred hyperspace--evalable-p) (funcall (eval action) query))
+    ((pred stringp) (hyperspace-action->browse-url-pattern action query))
+    (_ (error "Unknown action"))))
+
+;;;###autoload
+(defun hyperspace (keyword &optional query)
+  "Execute action for keyword KEYWORD, with optional QUERY."
+  (interactive (hyperspace--query))
+  (let ((action (cdr (assoc keyword hyperspace-actions))))
+    (hyperspace--dispatch (or action hyperspace-default-action) query)))
+
+;;;###autoload
+(defun hyperspace-enter (&optional query)
+  "Enter Hyperspace, sending QUERY to the default action.
+
+   If the region is active, use that as the query for
+   ‘hyperspace-default-action’.  Otherwise, prompt the user."
+  (interactive (list (hyperspace--initial-text)))
+  (hyperspace
+   hyperspace-default-action
+   (or query
+       (read-from-minibuffer
+        (format "HS: %s " hyperspace-default-action) nil nil
+        'hyperspace-history))))
+
+;; Minor mode
+
+(defvar hyperspace-minor-mode-map
+  (let ((kmap (make-sparse-keymap)))
+    (define-key kmap (kbd "H-SPC") #'hyperspace)
+    (define-key kmap (kbd "<H-return>") #'hyperspace-enter)
+    kmap))
+
+;;;###autoload
+(define-minor-mode hyperspace-minor-mode
+  "Global (universal) minor mode to jump from here to there."
+  nil nil hyperspace-minor-mode-map
+  :group 'hyperspace
+  :global t)
+
+(provide 'hyperspace)
+
+;;; hyperspace.el ends here
+
 (require 'which-key)
 (which-key-setup-minibuffer)
 (which-key-mode)
@@ -267,7 +514,7 @@
 
 (defun dired-mode-setup ()
   "Will run as hook for `dired-mode'."
-  (dired-hide-details-mode 1))
+  (dired-hide-details-mode nil))
 (add-hook 'dired-mode-hook 'dired-mode-setup)
 
 (require 'ivy-hydra)
@@ -312,82 +559,152 @@
 (require 'mu4e)
 
 ;; default
-(setq mu4e-maildir                "~/Mail"
-      mu4e-mu-binary              "/usr/local/bin/mu"
-      mu4e-get-mail-command       "offlineimap"  ;; Allow updating with the "U" command
-      mu4e-sent-messages-behavior 'delete        ;; Delete sent messages
-      mu4e-view-show-images       t              ;; attempt to show images
-      mu4e-view-image-max-width   400            ;; max image size
-      message-kill-buffer-on-exit t              ;; don't keep messages around
-      mu4e-use-fancy-chars        t              ;; use 'fancy' chars
-      mu4e-update-interval        300            ;; 5 mins
+(setq mu4e-maildir                       "~/Mail"
+      mu4e-mu-binary                     "/usr/local/bin/mu"
+      mu4e-change-filenames-when-moving  t                                       ;; Rename files when moving (required by mbsync)
+      mu4e-compose-in-new-frame          t                                       ;; New compose gets new frame
+      mu4e-context-policy                'pick-first
+      mu4e-get-mail-command              "mbsync -a"                             ;; MBSYNC is the mail cmd
+      mu4e-html2text-command             "/usr/local/bin/w3m -T text/html"       ;; HTML to text command
+      mu4e-sent-messages-behavior        'delete                                 ;; Delete sent messages
+      mu4e-update-interval               300                                     ;; 5 mins
+      mu4e-use-fancy-chars               t                                       ;; use 'fancy' chars
+      mu4e-user-mail-address-list        '("lolson@eaglecrk.com"
+                                           "lolson@vlocity.com"
+                                           "olson.levi@gmail.com")
+      mu4e-view-show-images              t                                       ;; attempt to show images
+      mu4e-view-image-max-width          400                                     ;; max image size
+
+      message-citation-line-format       "On %a %d %b %Y at %R, %f wrote:\n"     ;; customize the reply-quote-string
+      message-citation-line-function     'message-insert-formatted-citation-line ;; choose to use the formatted string
+      message-kill-buffer-on-exit        t                                       ;; don't keep messages around
+
+      send-mail-function                 'smtpmail-send-it                       ;; Default email send function
+      smtpmail-default-smtp-server       "smtp.gmail.com"
+      smtpmail-smtp-service              587
       )
 
+(defun mdmail-send-buffer ()
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) "mdmail"))
+
 (setq mu4e-contexts
-      `( ,(make-mu4e-context
-           :name "Vlocity"
-           :enter-func (lambda () (mu4e-message "Entering Vlocity"))
-           :leave-func (lambda () (mu4e-message "Leaving Vlocity"))
-           ;; we match based on the contact-fields of the message
-           :match-func (lambda (msg)
-                         (when msg
-                           (string= (mu4e-message-field msg :maildir) "/Vlocity")))
-           :vars '( ( user-mail-address      . "lolson@vlocity.com"  )
-                    ( smtpmail-mail-address  . "lolson@vlocity.com" )
-                    ( user-full-name         . "Levi Olson" )
-                    ( mu4e-compose-signature .
-                                             (concat
-                                              "--\n"
-                                              "Levi Olson\n"
-                                              "Senior UI Developer"))
-                    ( mu4e-sent-folder       . "/Vlocity/[Gmail].Sent Mail" )
-                    ( mu4e-drafts-folder     . "/Vlocity/[Gmail].Drafts" )
-                    ( mu4e-trash-folder      . "/Vlocity/[Gmail].Trash" )
-                    ( mu4e-maildir-shortcuts . (("/Vlocity/INBOX" . ?i)
-                                                ("/Vlocity/[Gmail].Sent Mail" . ?s)
-                                                ("/Vlocity/[Gmail].Trash" . ?t)
-                                                ("/Vlocity/[Gmail].All Mail" . ?a)))))
-         ,(make-mu4e-context
-           :name "Gmail"
-           :enter-func (lambda () (mu4e-message "Entering Gmail"))
-           :leave-func (lambda () (mu4e-message "Leaving Gmail"))
-           ;; this matches maildir /Arkham and its sub-directories
-           :match-func (lambda (msg)
-                         (when msg
-                           (string= (mu4e-message-field msg :maildir) "/Gmail")))
-           :vars '( ( user-mail-address       . "olson.levi@gmail.com" )
-                    ( smtpmail-mail-address   . "olson.levi@gmail.com" )
-                    ( user-full-name          . "Levi Olson" )
-                    ( mu4e-compose-signature  .
-                                              (concat
-                                               "--\n"
-                                               "Levi\n"))
-                    ( mu4e-sent-folder        . "/Gmail/[Gmail].Sent Mail" )
-                    ( mu4e-drafts-folder      . "/Gmail/[Gmail].Drafts" )
-                    ( mu4e-trash-folder       . "/Gmail/[Gmail].Trash" )
-                    ( mu4e-maildir-shortcuts  . (("/Gmail/INBOX" . ?i)
-                                                 ("/Gmail/[Gmail].Sent Mail" . ?s)
-                                                 ("/Gmail/[Gmail].Trash" . ?t)
-                                                 ("/Gmail/[Gmail].All Mail" . ?a))
-                                              )))))
-
-;; (defcustom smtpmail-smtp-user nil
-;;   "User name to use when looking up credentials in the authinfo file.
-;; If non-nil, only consider credentials for the specified user."
-;;   :version "24.1"
-;;   :type '(choice (const nil) string)
-;;   :group 'smtpmail)
-
-
-
-;; How to handle HTML emails
-;; (setq mu4e-html2text-command "textutil -stdin -format html -convert txt -stdout")
+      `(
+        ;; ,(make-mu4e-context
+        ;;    :name "Vlocity"
+        ;;    :enter-func (lambda () (mu4e-message "Entering Vlocity"))
+        ;;    :leave-func (lambda () (mu4e-message "Leaving Vlocity"))
+        ;;    ;; we match based on the contact-fields of the message
+        ;;    :match-func (lambda (msg)
+        ;;                  (when msg
+        ;;                    (string= (mu4e-message-field msg :maildir) "/Vlocity")))
+        ;;    :vars '( ( user-mail-address      . "lolson@vlocity.com"  )
+        ;;             ( smtpmail-mail-address  . "lolson@vlocity.com" )
+        ;;             ( smtpmail-smtp-user     . "lolson@vlocity.com" )
+        ;;             ( smtpmail-smtp-server   . "smtp.gmail.com" )
+        ;;             ( user-full-name         . "Levi Olson" )
+        ;;             ( mu4e-compose-signature .
+        ;;                                      (concat
+        ;;                                       "Levi Olson\n"
+        ;;                                       "Senior UI Developer"))
+        ;;             ( mu4e-sent-folder       . "/Vlocity/[Gmail].Sent Mail" )
+        ;;             ( mu4e-drafts-folder     . "/Vlocity/[Gmail].Drafts" )
+        ;;             ( mu4e-trash-folder      . "/Vlocity/[Gmail].Trash" )
+        ;;             ( mu4e-maildir-shortcuts . (("/Vlocity/INBOX" . ?i)
+        ;;                                         ("/Vlocity/[Gmail].Sent Mail" . ?s)
+        ;;                                         ("/Vlocity/[Gmail].Trash" . ?t)
+        ;;                                         ("/Vlocity/[Gmail].All Mail" . ?a)))))
+        ,(make-mu4e-context
+          :name "EagleCreek"
+          :enter-func (lambda () (mu4e-message "Entering EagleCreek"))
+          :leave-func (lambda () (mu4e-message "Leaving EagleCreek"))
+          ;; we match based on the contact-fields of the message
+          :match-func (lambda (msg)
+                        (when msg
+                          (string= (mu4e-message-field msg :maildir) "/eaglecrk")))
+          :vars '( ( user-mail-address      . "lolson@eaglecrk.com"  )
+                   ( smtpmail-mail-address  . "lolson@eaglecrk.com" )
+                   ( smtpmail-smtp-user     . "lolson@eaglecrk.com" )
+                   ( smtpmail-smtp-server   . "smtp.office365.com" )
+                   ( user-full-name         . "Levi Olson" )
+                   ;; ( mu4e-compose-signature .
+                   ;;                          (concat
+                   ;;                           "Levi Olson\n"
+                   ;;                           "Eagle Creek Software Services\n"
+                   ;;                           "Senior Application Developer Consultant\n"))
+                   ( mu4e-sent-folder       . "/eaglecrk/Sent Items" )
+                   ( mu4e-drafts-folder     . "/eaglecrk/Drafts" )
+                   ( mu4e-trash-folder      . "/eaglecrk/Deleted Items" )
+                   ( mu4e-maildir-shortcuts . (("/eaglecrk/Inbox" . ?i)
+                                               ("/eaglecrk/Sent Items" . ?s)
+                                               ("/eaglecrk/Deleted Items" . ?t)
+                                               ("/eaglecrk/Archive" . ?a)))))
+        ;; ,(make-mu4e-context
+        ;;   :name "Gmail"
+        ;;   :enter-func (lambda () (mu4e-message "Entering Gmail"))
+        ;;   :leave-func (lambda () (mu4e-message "Leaving Gmail"))
+        ;;   ;; this matches maildir /Arkham and its sub-directories
+        ;;   :match-func (lambda (msg)
+        ;;                 (when msg
+        ;;                   (string= (mu4e-message-field msg :maildir) "/Gmail")))
+        ;;   :vars '( ( user-mail-address      . "olson.levi@gmail.com" )
+        ;;            ( smtpmail-mail-address  . "olson.levi@gmail.com" )
+        ;;            ( smtpmail-smtp-user     . "olson.levi@gmail.com" )
+        ;;            ( smtpmail-smtp-server   . "smtp.gmail.com" )
+        ;;            ( user-full-name         . "Levi Olson" )
+        ;;            ( mu4e-compose-signature .
+        ;;                                     (concat
+        ;;                                      "Levi\n"))
+        ;;            ( mu4e-sent-folder       . "/Gmail/[Gmail].Sent Mail" )
+        ;;            ( mu4e-drafts-folder     . "/Gmail/[Gmail].Drafts" )
+        ;;            ( mu4e-trash-folder      . "/Gmail/[Gmail].Trash" )
+        ;;            ( mu4e-maildir-shortcuts . (("/Gmail/INBOX" . ?i)
+        ;;                                        ("/Gmail/[Gmail].Sent Mail" . ?s)
+        ;;                                        ("/Gmail/[Gmail].Trash" . ?t)
+        ;;                                        ("/Gmail/[Gmail].All Mail" . ?a))
+        ;;                                     )))
+        ))
 
 ;; Add option to view HTML in browser
 (add-to-list 'mu4e-headers-actions
              '("in browser" . mu4e-action-view-in-browser) t)
 (add-to-list 'mu4e-view-actions
              '("in browser" . mu4e-action-view-in-browser) t)
+
+
+
+(defun my-message-current-line-cited-p ()
+  "Indicate whether the line at point is a cited line."
+  (save-match-data
+    (string-match (concat "^" message-cite-prefix-regexp)
+                  (buffer-substring (line-beginning-position) (line-end-position)))))
+
+(defun my-message-says-attachment-p ()
+  "Return t if the message suggests there can be an attachment."
+  (save-excursion
+    (goto-char (point-min))
+    (save-match-data
+      (let (search-result)
+        (while
+            (and (setq search-result (re-search-forward "\\(attach\\|pdf\\|file\\)" nil t))
+                 (my-message-current-line-cited-p)))
+        search-result))))
+
+(defun my-message-has-attachment-p ()
+  "Return t if the message has an attachment."
+  (save-excursion
+    (goto-char (point-min))
+    (save-match-data
+      (re-search-forward "<#part" nil t))))
+
+(defun my-message-pre-send-check-attachment ()
+  (when (and (my-message-says-attachment-p)
+             (not (my-message-has-attachment-p)))
+    (unless
+        (y-or-n-p "No attachment. Send anyway?")
+      (error "It seems that an attachment is needed, but none was found. Aborting sending."))))
+
+(add-hook 'message-send-hook 'my-message-pre-send-check-attachment)
 
 (require 'projectile)
 (require 'counsel-projectile)
@@ -397,6 +714,219 @@
       projectile-remember-window-configs t
       projectile-completion-system 'ivy)
 (counsel-projectile-mode)
+
+;;; notify.el --- notification front-end
+
+;; Copyright (C) 2008  Mark A. Hershberger
+
+;; Original Author: Mark A. Hershberger <mhersberger@intrahealth.org>
+;; Modified by Andrey Kotlarski <m00naticus@gmail.com>
+;; Modified by Andrew Gwozdziewycz <git@apgwoz.com>
+;; Modified by Aidan Gauland <aidalgol@no8wireless.co.nz> October 2011
+;; Modified by Olivier Sirven <the.slaa@gmail.com> November 2013
+;; Keywords: extensions, convenience, lisp
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+
+;; This file is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
+;;; Commentary:
+
+;; This provides a single function, `notify', that will produce a notify
+;; pop-up via D-Bus, libnotify, simple message or growl.
+;; To use, just put (autoload 'notify "notify" "Notify TITLE, BODY.")
+;;  in your init file.  You may override default chosen notification
+;;  method by assigning `notify-method' to one of 'notify-via-dbus
+;; 'notify-via-libnotify or 'notify-via-message
+;;; Code:
+
+(defvar notify-defaults (list :app "Emacs" :icon "emacs" :timeout 5000
+                              :urgency "low"
+                              :category "emacs.message")
+  "Notification settings' defaults.
+May be overridden with key-value additional arguments to `notify'.")
+(defvar notify-delay '(0 5 0)
+  "Minimum time allowed between notifications in time format.")
+(defvar notify-last-notification '(0 0 0) "Time of last notification.")
+(defvar notify-method 'notify-via-growl "Notification method among
+'notify-via-dbus, 'notify-via-libnotify, 'notify-via-message or
+'notify-via-growl")
+
+;; determine notification method unless already set
+;; prefer growl > D-Bus > libnotify > message
+(cond
+ ((null notify-method)
+  (setq notify-method
+        (cond
+         ((executable-find "growlnotify") 'notify-via-growl)
+         ((and (require 'dbus nil t)
+               (dbus-ping :session "org.freedesktop.Notifications"))
+          (defvar notify-id 0 "Current D-Bus notification id.")
+          'notify-via-dbus)
+         ((executable-find "notify-send") 'notify-via-libnotify)
+         (t 'notify-via-message))))
+ ((eq notify-method 'notify-via-dbus) ;housekeeping for pre-chosen DBus
+  (if (and (require 'dbus nil t)
+           (dbus-ping :session "org.freedesktop.Notifications"))
+      (defvar notify-id 0 "Current D-Bus notification id.")
+    (setq notify-method (if (executable-find "notify-send")
+                            'notify-via-libnotify
+                          'notify-via-message))))
+ ((and (eq notify-method 'notify-via-libnotify)
+       (not (executable-find "notify-send"))) ;housekeeping for pre-chosen libnotify
+  (setq notify-method
+        (if (and (require 'dbus nil t)
+                 (dbus-ping :session "org.freedesktop.Notifications"))
+            (progn
+              (defvar notify-id 0 "Current D-Bus notification id.")
+              'notify-via-dbus)
+          'notify-via-message)))
+ ((and (eq notify-method 'notify-via-growl)
+       (not (executable-find "growlnotify")))
+  (setq notify-method 'notify-via-message)))
+
+(defun notify-via-dbus (title body)
+  "Send notification with TITLE, BODY `D-Bus'."
+  (dbus-call-method :session "org.freedesktop.Notifications"
+                    "/org/freedesktop/Notifications"
+                    "org.freedesktop.Notifications" "Notify"
+                    (get 'notify-defaults :app)
+                    (setq notify-id (+ notify-id 1))
+                    (get 'notify-defaults :icon) title body '(:array)
+                    '(:array :signature "{sv}") ':int32
+                    (get 'notify-defaults :timeout)))
+
+(defun notify-via-libnotify (title body)
+  "Notify with TITLE, BODY via `libnotify'."
+  (call-process "notify-send" nil 0 nil
+                title body "-t"
+                (number-to-string (get 'notify-defaults :timeout))
+                "-i" (get 'notify-defaults :icon)
+                "-u" (get 'notify-defaults :urgency)
+                "-c" (get 'notify-defaults :category)))
+
+(defun notify-via-message (title body)
+  "Notify TITLE, BODY with a simple message."
+  (message "%s: %s" title body))
+
+(defun notify-via-growl (title body)
+  "Notify TITLE, BODY with a growl"
+  (call-process "growlnotify" nil 0 nil
+                "-a" (get 'notify-defaults :app)
+                "-n" (get 'notify-defaults :category)
+                "-t" (notify-via-growl-stringify title)
+                "-m" (notify-via-growl-stringify body)))
+
+(defun notify-via-growl-stringify (thing)
+  (cond ((null thing) "")
+        ((stringp thing) thing)
+        (t (format "%s" thing))))
+
+(defun keywords-to-properties (symbol args &optional defaults)
+  "Add to SYMBOL's property list key-values from ARGS and DEFAULTS."
+  (when (consp defaults)
+    (keywords-to-properties symbol defaults))
+  (while args
+    (put symbol (car args) (cadr args))
+    (setq args (cddr args))))
+
+
+;;;###autoload
+(defun notify (title body &rest args)
+  "Notify TITLE, BODY via `notify-method'.
+ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
+  (when (time-less-p notify-delay
+                     (time-since notify-last-notification))
+    (or (eq notify-method 'notify-via-message)
+        (keywords-to-properties 'notify-defaults args
+                                notify-defaults))
+    (setq notify-last-notification (current-time))
+    (funcall notify-method title body)))
+
+(provide 'notify)
+
+;;; notify.el ends here
+
+(require 'jabber)
+
+(setq jabber-history-enabled t
+      jabber-use-global-history nil
+      jabber-backlog-number 40
+      jabber-backlog-days 30
+      jabber-alert-presence-message-function (lambda (_who _oldstatus _newstatus _statustext) nil)
+      )
+
+(setq jabber-account-list '(
+                            ;; ("olson.levi@gmail.com"
+                            ;;  (:network-server . "talk.google.com")
+                            ;;  (:connection-type . ssl))
+                            ("lolson@vlocity.com"
+                             (:network-server . "talk.google.com")
+                             (:connection-type . ssl))
+                            ))
+
+(defvar my-chat-prompt "[%t] %n>\n" "Customized chat prompt")
+(when (featurep 'jabber)
+  (setq
+   jabber-chat-foreign-prompt-format my-chat-prompt
+   jabber-chat-local-prompt-format my-chat-prompt
+   jabber-groupchat-prompt-format my-chat-prompt
+   jabber-muc-private-foreign-prompt-format "[%t] %g/%n>\n"
+   )
+  )
+
+(defun notify-jabber-notify (from buf text _proposed-alert)
+  "(jabber.el hook) Notify of new Jabber chat messages via notify.el"
+  (when (or jabber-message-alert-same-buffer
+            (not (memq (selected-window) (get-buffer-window-list buf))))
+    (if (jabber-muc-sender-p from)
+        (notify (format "(PM) %s"
+                        (jabber-jid-displayname (jabber-jid-user from)))
+                (format "%s: %s" (jabber-jid-resource from) text)))
+    (notify (format "%s" (jabber-jid-displayname from))
+            text)))
+
+;; (add-hook 'jabber-alert-message-hooks 'notify-jabber-notify)
+
+
+;; (require 'autosmiley)
+;; (add-hook 'jabber-chat-mode-hook 'autosmiley-mode)
+
+
+(defun jabber ()
+  (interactive)
+  (jabber-connect-all)
+  (switch-to-buffer "*-jabber-roster-*"))
+
+(defun hyperspace-action->mu4e (&optional query)
+  "Search mu4e with QUERY.
+
+   If QUERY is unspecified, use the first bookmark in variable
+   ‘mu4e-bookmarks’ and update mail and index."
+
+  (mu4e-headers-search (or query (caar mu4e-bookmarks)))
+  (unless query
+    (mu4e-update-mail-and-index nil)))
+(add-to-list 'hyperspace-actions '("m4" . hyperspace-action->mu4e))
+
+(defun hyperspace-action->elfeed (&optional query)
+  "Load elfeed, optionally searching for QUERY."
+  (elfeed)
+  (if query
+      (elfeed-search-set-filter query)
+    (elfeed-search-fetch nil)))
+(add-to-list 'hyperspace-actions '("lf" . hyperspace-action->elfeed))
 
 (require 'rainbow-delimiters)
 (global-flycheck-mode)
@@ -525,6 +1055,29 @@
    (shell . t)
    (emacs-lisp . t)))
 
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "|" "DONE(d)")
+        (sequence "BUG(b)" "|" "INPROGRESS(i)" "FIXED(f)")
+        (sequence "|" "CANCELED(c)")
+        (sequence "|" "NEEDCLARIFICATION(n)")
+        (sequence "|" "PROVIDEUPDATE(p)")
+        (sequence "|" "WAITING(w)")
+        ))
+
+(setq org-agenda-files
+      '("~/Dropbox/Org/todo.org" "~/Dropbox/Org/archive.org"))
+(setq org-refile-targets
+      '((nil :maxlevel . 1)
+        (org-agenda-files :maxlevel . 1)))
+
+(add-hook 'focus-in-hook
+          (lambda () (progn
+                       (setq org-tags-column (- 5 (frame-width)))) (org-align-all-tags)))
+
+(add-hook 'focus-out-hook
+          (lambda () (progn
+                       (setq org-tags-column (- 5 (frame-width)))) (org-align-all-tags)))
+
 (defvar org-src-tab-acts-natively)
 (setq org-src-tab-acts-natively t)
 ;; (setenv "NODE_PATH"
@@ -532,7 +1085,7 @@
 
 (defvar org-confirm-babel-evaluate)
 
-(defun my-org-confirm-babel-evaluate (lang body)
+(defun my-org-confirm-babel-evaluate (lang _body)
   "Execute certain languages without confirming.
       Takes LANG to allow and BODY to execute."
   (not (or (string= lang "js")
@@ -553,10 +1106,37 @@
                                "\n"
                                "#+END_SRC")))
 
+;;store org-mode links to messages
+(require 'org-mu4e)
+;;store link to message if in header view, not to header query
+(setq org-mu4e-link-query-in-headers-mode nil)
+
+(setq org-capture-templates
+      '(("t" "todo" entry (file+headline "~/todo.org" "Tasks")
+         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")))
+
+(elfeed-org)
+(setq rmh-elfeed-org-files (list "~/Dropbox/Org/elfeed.org"))
+
+(defun leo/elfeed-search (arg)
+  "Search for ARG in feed."
+  (interactive)
+  (elfeed-search-set-filter arg))
+
+(define-key elfeed-search-mode-map "a" (lambda () (interactive) (leo/elfeed-search "")))
+(define-key elfeed-search-mode-map "e" (lambda () (interactive) (leo/elfeed-search "+emacs")))
+(define-key elfeed-search-mode-map "d" (lambda () (interactive) (leo/elfeed-search "+daily")))
+(define-key elfeed-search-mode-map "x" (lambda () (interactive) (leo/elfeed-search "xkcd")))
+
 (defun find-user-init-file ()
   "Edit the `~/.emacs.d/init.org' file."
   (interactive)
   (find-file "~/.emacs.d/init.org"))
+
+(defun find-todo-file ()
+  "Edit the `~/todo.org' file."
+  (interactive)
+  (find-file "~/Dropbox/Org/todo.org"))
 
 (defun load-user-init-file ()
   "LO: Reload the `~/.emacs.d/init.elc' file."
@@ -730,33 +1310,39 @@
   (local-set-key (kbd "C-c C-c") 'compile))
 
 (require 'company)
-(add-hook 'comint-mode-hook (lambda () (local-set-key (kbd "C-l") 'clear-comint)))
+(add-hook 'comint-mode-hook (lambda () (local-set-key (kbd "c-l") 'clear-comint)))
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
 (add-hook 'c-mode-common-hook 'c-setup)
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
 (defvar company-active-map (make-keymap)
-  "Company Mode keymap.")
+  "company mode keymap.")
 (defvar custom-bindings (make-keymap)
-  "A keymap of custom bindings.")
+  "a keymap of custom bindings.")
 
-(define-key global-map          (kbd "M-p")          'jump-to-previous-like-this)
-(define-key global-map          (kbd "M-n")          'jump-to-next-like-this)
-(define-key global-map          (kbd "M-<tab>")      'switch-to-next-buffer)
-(define-key global-map          (kbd "M-<backspace>")'delete-backward-to-boundary)
-(define-key global-map          (kbd "C-<backspace>")'delete-backward-to-boundary)
-
-(global-set-key                 (kbd "C-S-<down>")   'mc/mark-next-like-this)
-(global-set-key                 (kbd "C->")          'mc/mark-next-like-this-symbol)
-(global-set-key                 (kbd "C-S-<up>")     'mc/mark-previous-like-this)
-(global-set-key                 (kbd "C-<")          'mc/mark-previous-like-this)
-(global-set-key                 (kbd "C-c C->")      'mc/mark-all-like-this)
-(global-set-key                 "%"                  'match-paren)
-(global-set-key                 (kbd "C-x .")        'dash-at-point)
-(global-set-key                 (kbd "C-x ,")        'dash-at-point-with-docset)
-(global-set-key                 (kbd "C-s")          (lambda () (interactive) (swiper (format "%s" (thing-at-point 'symbol)))))
-(global-set-key                 (kbd "M-m")          'mu4e)
+(define-key custom-bindings     (kbd "M-p")          'jump-to-previous-like-this)
+(define-key custom-bindings     (kbd "M-n")          'jump-to-next-like-this)
+(define-key custom-bindings     (kbd "M-<tab>")      'switch-to-next-buffer)
+(define-key custom-bindings     (kbd "M-<backspace>")'delete-backward-to-boundary)
+(define-key custom-bindings     (kbd "C-<backspace>")'delete-backward-to-boundary)
+(define-key custom-bindings     (kbd "C-}")          'mc/mark-next-like-this)
+(define-key custom-bindings     (kbd "C-)")          'mc/unmark-next-like-this)
+(define-key custom-bindings     (kbd "C-{")          'mc/mark-previous-like-this)
+(define-key custom-bindings     (kbd "C-(")          'mc/unmark-previous-like-this)
+(define-key custom-bindings     (kbd "C-'")          'mc-hide-unmatched-lines-mode)
+(define-key custom-bindings     (kbd "C-c 1")        'mc/insert-numbers)
+(define-key custom-bindings     (kbd "C-c s")        'mc/sort-regions)
+(define-key custom-bindings     "%"                  'match-paren)
+(define-key custom-bindings     (kbd "C-x .")        'dash-at-point)
+(define-key custom-bindings     (kbd "C-x ,")        'dash-at-point-with-docset)
+(define-key custom-bindings     (kbd "C-s")          (lambda () (interactive) (swiper (format "%s" (thing-at-point 'symbol)))))
+(define-key custom-bindings     (kbd "C-x C-l m")    'mu4e)
+(define-key custom-bindings     (kbd "C-x C-o t")    'find-todo-file)
+(define-key custom-bindings     (kbd "C-x C-l j")    'jabber)
+(define-key custom-bindings     (kbd "C-x C-l f")    'elfeed)
+(define-key custom-bindings     (kbd "C-x C-l a")    'org-agenda)
+(define-key custom-bindings     (kbd "M-SPC")        #'hyperspace)
 ;; (dolist (n (number-sequence 1 9))
 ;;   (global-set-key (kbd (concat "M-" (int-to-string n)))
 ;;                   (lambda () (interactive) (switch-shell n))))
@@ -812,7 +1398,7 @@
 
 
 ;; How tall the mode-line should be (only respected in GUI Emacs).
-(setq doom-modeline-height 35)
+(setq doom-modeline-height 30)
 
 ;; How wide the mode-line bar should be (only respected in GUI Emacs).
 (setq doom-modeline-bar-width 4)
