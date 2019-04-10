@@ -15,6 +15,7 @@
 (add-hook 'after-save-hook 'tangle-init)
 
 (require 'package)
+(package-initialize)
 
 (defvar my-packages
   '(all-the-icons
@@ -27,6 +28,7 @@
     counsel
     counsel-projectile
     dash-at-point
+    dashboard
     diminish
     dockerfile-mode
     doom-modeline
@@ -34,6 +36,7 @@
     ein
     eldoc-eval
     elpy
+    emmet-mode
     expand-region
     fic-mode
     gitignore-mode
@@ -52,6 +55,7 @@
     projectile
     py-autopep8
     rainbow-delimiters
+    rust-mode
     shrink-path
     tide
     typescript-mode
@@ -69,10 +73,6 @@
 (dolist (p my-packages)
   (when (not (package-installed-p p))
     (package-install p)))
-
-(require 'edit-server)
-
-(edit-server-start)
 
 (require 'better-defaults)
 
@@ -127,9 +127,37 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-(setq inhibit-splash-screen nil
-      fancy-splash-image "~/.emacs.d/public/emacs-logo.png"
-      fancy-splash-image-file "~/.emacs.d/public/emacs-logo.png")
+(require 'dashboard)
+
+(dashboard-setup-startup-hook)
+
+;; Set the title
+(setq dashboard-banner-logo-title "Let's begin...")
+;; Set the banner
+(setq dashboard-startup-banner "~/.emacs.d/public/emacs-logo-512.png")
+;; Value can be
+;; 'official which displays the official emacs logo
+;; 'logo which displays an alternative emacs logo
+;; 1, 2 or 3 which displays one of the text banners
+;; "path/to/your/image.png" which displays whatever image you would prefer
+
+;; Content is not centered by default. To center, set
+(setq dashboard-center-content t)
+
+;; To disable shortcut "jump" indicators for each section, set
+(setq dashboard-show-shortcuts t)
+
+(setq show-week-agenda-p t)
+
+(setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5)))
+
+;; (setq inhibit-splash-screen nil
+;;       fancy-splash-image "~/.emacs.d/public/emacs-logo-256.png"
+;;       fancy-splash-image-file "~/.emacs.d/public/emacs-logo-256.png")
 
 (defvar backup-dir (expand-file-name "~/.emacs.d/backup/"))
 (defvar autosave-dir (expand-file-name "~/.emacs.d/autosave/"))
@@ -804,8 +832,8 @@
   "A mode that activates custom-bindings."
   t nil custom-bindings)
 
-(cond ((member "PragmataPro" (font-family-list))
-       (set-face-attribute 'default nil :font "PragmataPro-14")))
+(cond ((member "PragmataPro Mono Liga" (font-family-list))
+       (set-face-attribute 'default nil :font "PragmataPro Mono Liga-13")))
 
 (require 'doom-modeline)
 (doom-modeline-mode 1)
