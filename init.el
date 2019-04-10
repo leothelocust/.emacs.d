@@ -158,6 +158,17 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+(defvar diary-file (expand-file-name "~/.emacs.d/diary/main"))
+
+(add-hook 'diary-list-entries-hook 'diary-sort-entries t)
+(add-hook 'diary-list-entries-hook 'diary-include-other-diary-files)
+(add-hook 'diary-mark-entries-hook 'diary-mark-included-diary-files)
+(add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+
+(setq calendar-latitude 44
+      calendar-longitude -97
+      calendar-location-name "Hayti, SD")
+
 (require 'font-lock)
 
 (defvar openhab-mode-hook nil)
@@ -566,6 +577,7 @@
       mu4e-context-policy                'pick-first
       mu4e-get-mail-command              "mbsync -a"                             ;; MBSYNC is the mail cmd
       mu4e-html2text-command             "/usr/local/bin/w3m -T text/html"       ;; HTML to text command
+      mu4e-headers-include-related       nil                                     ;; Stop threading in INBOX
       mu4e-sent-messages-behavior        'delete                                 ;; Delete sent messages
       mu4e-update-interval               300                                     ;; 5 mins
       mu4e-use-fancy-chars               t                                       ;; use 'fancy' chars
@@ -584,9 +596,23 @@
       smtpmail-smtp-service              587
       )
 
-(defun mdmail-send-buffer ()
+(defun leo/convert-message-set-point ()
+  "Set the point to the start of the message body."
   (interactive)
-  (shell-command-on-region (point-min) (point-max) "mdmail"))
+  (beginning-of-buffer)
+  (search-forward "--text follows this line--")
+  (forward-char)
+  )
+(defun leo/convert-message-from-markdown ()
+  "Convert a markdown flavored mail buffer to html w/mime support."
+  (interactive)
+  (if (y-or-n-p "Convert to HTML? ")
+      ((leo/convert-message-set-point)
+       (save-excursion
+         (message-goto-body)
+         (shell-command-on-region (point) (point-max) "~/.emacs.d/scripts/expand-mime.sh" nil t)))
+    (message "Aborting."))
+  )
 
 (setq mu4e-contexts
       `(
@@ -1342,6 +1368,7 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 (define-key custom-bindings     (kbd "C-x C-l j")    'jabber)
 (define-key custom-bindings     (kbd "C-x C-l f")    'elfeed)
 (define-key custom-bindings     (kbd "C-x C-l a")    'org-agenda)
+(define-key custom-bindings     (kbd "C-x C-l c")    'calendar)
 (define-key custom-bindings     (kbd "M-SPC")        #'hyperspace)
 ;; (dolist (n (number-sequence 1 9))
 ;;   (global-set-key (kbd (concat "M-" (int-to-string n)))
@@ -1460,3 +1487,15 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 
 ;; Whether display mu4e notifications or not. Requires `mu4e-alert' package.
 (setq doom-modeline-mu4e t)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(magit-log-section-arguments (quote ("--graph" "--color" "--decorate" "-n256"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
