@@ -1,0 +1,5 @@
+**/*
+!init.*
+!index.html
+!scripts/*.sh
+!.gitignore
