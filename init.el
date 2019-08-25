@@ -54,10 +54,12 @@
     ivy-hydra
     jabber
     json-mode
+    ledger-mode
     magit
     markdown-mode
     material-theme
     multiple-cursors
+    org-bullets
     ox-reveal
     poporg
     projectile
@@ -80,6 +82,8 @@
 (dolist (p my-packages)
   (when (not (package-installed-p p))
     (package-install p)))
+
+(server-start)
 
 (require 'better-defaults)
 
@@ -126,8 +130,7 @@
   (interactive)
   (/ (- (x-display-pixel-width) (window-px-width)) 2))
 
-
-;; (add-to-list 'default-frame-alist (cons 'top 0))
+ ;; (add-to-list 'default-frame-alist (cons 'top 0))
 ;; (add-to-list 'default-frame-alist (cons 'left 1000))
 
 (put 'narrow-to-region 'disabled nil)
@@ -151,16 +154,19 @@
 ;; Content is not centered by default. To center, set
 (setq dashboard-center-content t)
 
-;; To disable shortcut "jump" indicators for each section, set
+;; To enable shortcut "jump" indicators for each section, set
 (setq dashboard-show-shortcuts t)
 
 (setq show-week-agenda-p t)
-
-(setq dashboard-items '((recents  . 5)
+(setq dashboard-org-agenda-categories '("work" "tasks"))
+(setq dashboard-items '((recents  . 10)
                         (bookmarks . 5)
                         (projects . 5)
-                        (agenda . 5)
-                        (registers . 5)))
+                        ;; (agenda . 5)
+                        ;; (registers . 5)
+                        ))
+
+(add-to-list 'dashboard-items '(agenda) t)
 
 (defvar backup-dir (expand-file-name "~/.emacs.d/backup/"))
 (defvar autosave-dir (expand-file-name "~/.emacs.d/autosave/"))
@@ -175,6 +181,15 @@
 (tool-bar-mode 0)
 (setq auth-sources '("~/.authinfo.gpg"))
 (set-default 'truncate-lines t)
+(setq fill-column 80)
+
+;; (add-hook 'text-mode-hook
+;;               (lambda ()
+;;                 (when (y-or-n-p "Auto Fill mode? ")
+;;                   (turn-on-auto-fill))))
+
+(setq whitespace-style '(face empty tabs lines-tail trailing))
+(global-whitespace-mode t)
 
 ;; (load-theme 'doom-city-lights t)
 ;; (load-theme 'doom-dracula t)
@@ -590,6 +605,11 @@
 
 (define-key ivy-minibuffer-map (kbd "<return>") 'ivy-alt-done)
 (define-key ivy-minibuffer-map (kbd "C-f") 'ivy-open-current-typed-path)
+
+(autoload 'ledger-mode "ledger-mode" "A major mode for Ledger" t)
+(add-to-list 'load-path
+             (expand-file-name "/path/to/ledger/source/lisp/"))
+(add-to-list 'auto-mode-alist '("\\.ledger$" . ledger-mode))
 
 (require 'magit)
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -1191,6 +1211,7 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
   "a keymap of custom bindings.")
 
 (define-key custom-bindings     (kbd "M-p")          'jump-to-previous-like-this)
+(define-key custom-bindings     (kbd "M-r")          'fill-paragraph)
 (define-key custom-bindings     (kbd "M-n")          'jump-to-next-like-this)
 (define-key custom-bindings     (kbd "M-<tab>")      'switch-to-next-buffer)
 (define-key custom-bindings     (kbd "M-<backspace>")'delete-backward-to-boundary)
@@ -1211,6 +1232,7 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 (define-key custom-bindings     (kbd "C-x C-l j")    'jabber)
 (define-key custom-bindings     (kbd "C-x C-l f")    'elfeed)
 (define-key custom-bindings     (kbd "C-x C-l a")    'org-agenda)
+(define-key custom-bindings     (kbd "C-,")          'org-cycle-agenda-files)
 (define-key custom-bindings     (kbd "C-x C-l c")    'calendar)
 (define-key custom-bindings     (kbd "M-SPC")        #'hyperspace)
 ;; (dolist (n (number-sequence 1 9))
@@ -1404,10 +1426,11 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 
 (setq org-agenda-files
       '("~/Dropbox/Org/todo.org"
-        "~/Dropbox/Org/archive.org"))
+        "~/Dropbox/Org/archive.org"
+        "~/Dropbox/Org/diary/eaglecrk.org"))
 (setq org-refile-targets
-      '((nil :maxlevel . 1)
-        (org-agenda-files :maxlevel . 1)))
+      '((nil :maxlevel . 3)
+        (org-agenda-files :maxlevel . 3)))
 
 ;; (add-hook 'focus-in-hook
 ;;           (lambda () (progn
@@ -1424,10 +1447,12 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 
 (defun my-org-confirm-babel-evaluate (lang _body)
   "Execute certain languages without confirming.
-            Takes LANG to allow and BODY to execute."
+                  Takes LANG to allow and BODY to execute."
   (not (or (string= lang "js")
            (string= lang "restclient")
            (string= lang "emacs-lisp")
+           (string= lang "elisp")
+           (string= lang "sh")
            (string= lang "shell"))))
 (setq org-confirm-babel-evaluate #'my-org-confirm-babel-evaluate)
 (add-to-list 'org-structure-template-alist
@@ -1442,6 +1467,32 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
              (list "r" (concat "#+BEGIN_SRC restclient :results raw\n"
                                "\n"
                                "#+END_SRC")))
+(setq org-directory "~/Dropbox/Org"
+      org-default-notes-file (concat org-directory "/todo.org")
+      org-startup-folded t
+      org-startup-indented t
+      org-startup-align-all-tables t
+      org-startup-with-inline-images t
+      org-startup-with-latex-preview t
+      org-log-done t
+      org-log-done-with-time t
+      org-log-into-drawer t
+      org-hide-leading-stars t
+      org-pretty-entities t
+      )
+
+(require 'org-protocol)
+(setq org-capture-templates
+      '(("t" "new task" entry (file+headline "~/Dropbox/Org/todo.org" "Tasks")
+         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")
+        ("n" "new note" entry (file+headline org-default-notes-file "Notes")
+         "* %?\n%i\n")
+        ("l" "store link" entry (file+olp org-default-notes-file "Links" "Unfiled")
+         "* %a\n%?\n")
+        ("d" "store link w/drawer" entry (file+olp org-default-notes-file "Links" "Unfiled")
+         "* %?\n%l\n:COPIED_TEXT:\n    %i\n:END:\n")
+        ))
+
 
 (defun my-org-config ()
   "Activate org and yas in 'org-mode' buffers."
@@ -1465,10 +1516,6 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 ;;store link to message if in header view, not to header query
 (setq org-mu4e-link-query-in-headers-mode nil)
 
-(setq org-capture-templates
-      '(("t" "todo" entry (file+headline "~/Dropbox/Org/todo.org" "Tasks")
-         "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n%a\n")))
-
 (elfeed-org)
 (setq rmh-elfeed-org-files (list "~/Dropbox/Org/elfeed.org"))
 
@@ -1485,10 +1532,12 @@ ARGS may be amongst :timeout, :icon, :urgency, :app and :category."
 (cond ((member "PragmataPro Mono Liga" (font-family-list))
        (set-face-attribute 'default nil :font "PragmataPro Mono Liga-13")))
 
-(set-face-attribute 'org-level-1 nil :height 1.5)
-(set-face-attribute 'org-level-2 nil :height 1.2)
-(set-face-attribute 'org-level-3 nil :height 1.1)
-(set-face-attribute 'org-level-4 nil :height 1.1)
+(add-hook 'org-mode-hook 'org-bullets-mode)
+
+(set-face-attribute 'org-level-1 nil :height 1.3)
+(set-face-attribute 'org-level-2 nil :height 1.1)
+(set-face-attribute 'org-level-3 nil :height 1.05)
+(set-face-attribute 'org-level-4 nil :height 1.05)
 (set-face-attribute 'org-scheduled-today nil :height 1.0)
 (set-face-attribute 'org-agenda-date-today nil :height 1.1)
 ;; (set-face-attribute 'org-table nil :foreground "#008787")
