@@ -640,7 +640,7 @@
       mu4e-change-filenames-when-moving  t                                       ;; Rename files when moving (required by mbsync)
       mu4e-compose-in-new-frame          t                                       ;; New compose gets new frame
       mu4e-context-policy                'pick-first
-      mu4e-get-mail-command              "mbsync -a"                        ;; MBSYNC is the mail cmd
+      mu4e-get-mail-command              "mbsync -a"                             ;; MBSYNC is the mail cmd
       mu4e-html2text-command             "/usr/bin/w3m -T text/html"             ;; HTML to text command
       mu4e-headers-include-related       nil                                     ;; Stop threading in INBOX
       mu4e-sent-messages-behavior        'delete                                 ;; Delete sent messages
